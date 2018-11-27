@@ -8,4 +8,10 @@ from rest_framework import generics
 class DirFileList(generics.ListCreateAPIView):
     queryset = DirFile.objects.all()
     serializer_class = DirFileDetailSerializer
+
+
+class DirFileDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DirFile.objects.all()
+    serializer_class = DirFileDetailSerializer
     lookup_field = 'file_path'
+    lookup_url_kwarg = 'file_path'

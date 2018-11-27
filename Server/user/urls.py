@@ -19,8 +19,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 
 urlpatterns = [
-    path('data/', views.DirFileList.as_view(), name='dir_file_list'),
-    # path('dir/<path:pth>', )
+    path('list/', views.DirFileList.as_view(), name='dir_file_list'),
+    path('details/<path:file_path>', views.DirFileDetail.as_view(), name='dir_file_view')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

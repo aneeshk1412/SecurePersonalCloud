@@ -5,4 +5,4 @@ from .models import DirFile
 class DirFileDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = DirFile
-        fields = ('name', 'file_type', 'modified_time', 'encryption_scheme', 'file_path', )
+        fields = ('pk', 'name', 'file_type', 'modified_time', 'encryption_scheme', 'file_path', )

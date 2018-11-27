@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -15,6 +15,7 @@ class DirFile(models.Model):
     file_path = models.TextField()
 
     # User Details , to be changed for file sharing
+    owners = models.ManyToManyField('User', related_name='user')
 
     # File Contents , to be changed for block level encryption
 
