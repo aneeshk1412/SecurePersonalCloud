@@ -15,7 +15,8 @@ class DirFile(models.Model):
     file_path = models.TextField()
 
     # User Details , to be changed for file sharing
-    owners = models.ManyToManyField('auth.User', related_name='user')
+    # related name is name with which the other model calls this model
+    owners = models.ManyToManyField('auth.User', related_name='dirfiles')
 
     # File Contents , to be changed for block level encryption
 
