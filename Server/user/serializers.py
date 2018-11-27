@@ -6,11 +6,11 @@ from django.contrib.auth.models import User
 class DirFileDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = DirFile
-        fields = ('pk', 'owners', 'name', 'file_type', 'modified_time', 'encryption_scheme', 'file_path', )
+        fields = ('pk', 'owners', 'name', 'file_type', 'modified_time', 'encryption_scheme', 'file_path', 'md5code', )
 
 
 class UserSerializer(serializers.ModelSerializer):
-    dirfiles = serializers.PrimaryKeyRelatedField(many=True, queryset=DirFile.objects.all())
+    dirfiles = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = User
