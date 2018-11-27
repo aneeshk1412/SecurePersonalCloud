@@ -15,12 +15,13 @@ class DirFile(models.Model):
     file_path = models.TextField()
 
     # User Details , to be changed for file sharing
-    owners = models.ManyToManyField('User', related_name='user')
+    owners = models.ManyToManyField('auth.User', related_name='user')
 
     # File Contents , to be changed for block level encryption
 
     file_contents = models.TextField()
 
+    # define the string view of the model instances
     def __str__(self):
         name = str(self.name)
         file_type = str(self.file_type)
