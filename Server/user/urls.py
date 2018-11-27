@@ -15,9 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.urls import include
+from rest_framework.urlpatterns import format_suffix_patterns
+from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('user/<str:username>', include('user.urls')),
+    path('data/', views.DirFileList.as_view(), name='dir_file_list'),
+    # path('dir/<path:pth>', )
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
