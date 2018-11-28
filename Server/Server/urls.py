@@ -17,10 +17,17 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from rest_framework.schemas import get_schema_view
+from . import views
+
+app_name = 'home_app'
 
 schema_view = get_schema_view(title='Secure Personal Cloud')
 
 urlpatterns = [
+    path('', views.homepage, name='homepage'),
+    path('accounts/signup/', views.signup_view, name='signup'),
+    path('accounts/login/', views.login_view, name='login'),
+    path('accounts/logout/', views.logout_view, name='logout'),
     path('admin/', admin.site.urls),
     path('user/<str:username>/', include('user.urls')),
     path('api-login/', include('rest_framework.urls')),
