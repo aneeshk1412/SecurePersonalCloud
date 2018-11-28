@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf.urls.static import static
 from . import views
+from django.conf import settings
 
 app_name = 'user'
 
@@ -27,6 +29,7 @@ urlpatterns = [
     path('', views.user_home, name='user_home'),
     path('tree/', views.tree_view, name='tree_view'),
     path('<int:pk>/', views.dir_view, name='dir_view'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 
 urlpatterns = format_suffix_patterns(urlpatterns)
