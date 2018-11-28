@@ -22,7 +22,7 @@ schema_view = get_schema_view(title='Secure Personal Cloud')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('user.urls')),
+    path('user/<str:username>/', include('user.urls')),
     path('api-login/', include('rest_framework.urls')),
     path('schema/', schema_view),
 ]

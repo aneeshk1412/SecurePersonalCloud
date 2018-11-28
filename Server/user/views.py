@@ -64,11 +64,11 @@ class DirFileData(generics.RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'file_path'
 
 
-# Listing all the users
-# Debugging purposes
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# # Listing all the users
+# # Debugging purposes
+# class UserList(generics.ListAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
 
 # Details of a particular user
