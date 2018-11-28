@@ -17,9 +17,10 @@ class DirFile(models.Model):
     # User Details , to be changed for file sharing
     # related name is name with which the other model calls this model
     owners = models.ManyToManyField('auth.User', related_name='dirfiles')
+    last_update_by = models.CharField(max_length=5000)
 
     # File Contents , to be changed for block level encryption
-
+    # make sure data stored here is always in Base64 encoding
     file_contents = models.TextField()
 
     # define the string view of the model instances
