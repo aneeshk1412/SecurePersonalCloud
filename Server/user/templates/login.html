@@ -1,0 +1,22 @@
+{% extends "basesite.html" %}
+
+{% if next %}
+  {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+  {% else %}
+    <p>Please login to see this page.</p>
+  {% endif %}
+{% endif %}
+
+{% block content %}
+<h1 align="center" style="color: white;">Si Log In!</h1>
+<form class="site-form" action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    {% if requestGET.next%}
+    <input type="hidden" name="next" value="{{request.GET.next}}">
+    {%endif%}
+    <input type="submit" value="Login">
+</form>
+{% endblock %}

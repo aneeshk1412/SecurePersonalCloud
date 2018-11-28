@@ -30,7 +30,7 @@ def login_view(request):
             user = form.get_user()
             if not request.user.is_authenticated:
                 login(request, user)
-                return redirect('user:userhome', username=request.user)
+                return redirect('user:user_home', username=request.user)
             if request.user != user:
                 return render(request, 'invalid.html')
             if request.user == user:

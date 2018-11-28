@@ -88,7 +88,7 @@ def user_home(request, username):
         return render(request, 'invalid.html')
     res_docs = DirFile.objects.filter(owners__pk=request.user.pk).filter(parent_id__exact=0)
     context = {'files': res_docs}
-    return render(request, 'user_home.html', context)
+    return render(request, 'userhome.html', context)
 
 
 def dfs(node, current_user_pk, tab):
@@ -107,7 +107,7 @@ def dfs(node, current_user_pk, tab):
 def tree_view(request, username):
     if not request.user.username == username:
         return render(request, 'invalid.html')
-    res_docs = DirFile.objects.filter(owner__pk=request.user.id).filter(parent_id__exact=0)
+    res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parent_id__exact=0)
     res_docs = [r for r in res_docs]
     result = ""
     while not len(res_docs) == 0:
@@ -122,9 +122,9 @@ def tree_view(request, username):
 def dir_view(request, pk, username):
     if not request.user.username == username:
         return render(request, 'invalid.html')
-    cur_dir = DirFile.objects.filter(owner__exact=request.user.id).get(id=pk)
+    cur_dir = DirFile.objects.filter(owners__pk=request.user.id).get(id=pk)
     if cur_dir.file_type == 'Directory':
-        res_docs = DirFile.objects.filter(owner__exact=request.user.id).filter(parentId__exact=pk)
+        res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parentId__exact=pk)
         dir_name = cur_dir.name
         context = {'files': res_docs, 'dir': dir_name}
         return render(request, 'directorypage.html', context)

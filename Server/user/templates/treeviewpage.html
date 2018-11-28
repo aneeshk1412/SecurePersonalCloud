@@ -1,0 +1,14 @@
+{% extends "basesite.html" %}
+
+{% block content %}
+<h1>All Files</h1>
+<div>
+{% if resstring %}
+    <pre>{{ resstring }}</pre>
+    <a href="/user/{{ user }}/tree/" class="button" align="left">Tree View</a>
+  {% else %}
+    <p>No files are added.</p>
+    <a href="/user/{{ user }}/tree/" class="button" align="left">Tree View</a>
+  {% endif %}
+</div>
+{% endblock %}

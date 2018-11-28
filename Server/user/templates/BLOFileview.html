@@ -1,0 +1,47 @@
+{% extends "basesite.html" %}
+{% load static %}
+{% block content %}
+<h1>{{ file_name }}</h1>
+<div>
+    <div id="file"></div>
+    <div id="img"></div>
+    <div id="videofile"></div>
+    <div id="music"></div>
+    <a href="#" id="downlink" download="{{ file_name }}">
+        <button type="button">Download</button>
+    </a>
+    <script type="text/javascript" src='{% static "aes.js" %}'></script>
+    <script type="text/javascript" src='{% static "mode-cfb-min.js" %}'></script>
+    <script type="text/javascript" src="http://sladex.org/blowfish.js/ext/blowfish.js">	</script>
+	<script type="text/javascript">
+		var data = blowfish.decrypt('{{ file_data }}' , localStorage['password'], {cipherMode: 1, outputType: 0}),
+		decrypted = data.slice(8,);
+        if("{{ file_type }}" == "txt")
+        {
+            document.getElementById('file').innerHTML = '<embed width=50% src ="data:text/txt;base64,'+ btoa(decrypted)+'">';
+            document.getElementById('downlink').href = 'data:text/txt;base64,'+ btoa(decrypted);
+        }
+        else if('{{ file_type }}' == 'jpg')
+        {
+            document.getElementById('img').innerHTML = '<embed width=50% src="data:image/jpg;base64,'+btoa(decrypted)+'">'
+            document.getElementById('downlink').href = 'data:image/jpg;base64,'+ btoa(decrypted);
+        }
+        else if('{{ file_type }}' == 'png')
+        {
+            document.getElementById('img').innerHTML = '<embed src="data:image/png;base64,'+btoa(decrypted)+'">'
+            document.getElementById('downlink').href = 'data:image/png;base64,'+ btoa(decrypted);
+        }
+        else if('{{ file_type }}' == 'mp4')
+        {
+            document.getElementById('videofile').innerHTML = '<video id="player" controls >'
+            var player = document.getElementById('player');
+            player.src = "data:video/webm;base64,"+ btoa(decrypted);
+            player.load();
+            player.play();
+            document.getElementById('downlink').href = 'data:video/webm;base64,'+ btoa(decrypted);
+        }
+
+    </script>
+
+</div>
+{% endblock %}

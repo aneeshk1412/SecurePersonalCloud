@@ -1,0 +1,136 @@
+{% extends "basesite.html" %}
+{% load static %}
+{% block content %}
+<h1>{{ file_name }}</h1>
+<div>
+    <div id="file"></div>
+    <div id="image"></div>
+    <div id="videofile"></div>
+    <div id="musicfile"></div>
+     <a href="#" id="downlink" download="{{ file_name }}">
+        <button type="button">Download</button>
+    </a>
+    <script type="text/javascript">
+	var ARC4 = function(key){
+    var s = new Array(256);
+    var s2 = new Array(256);
+
+    for (var i = 0; i < 256; i++){
+        s[i] = i;
+        s2[i] = key.charCodeAt(i % key.length);
+    }
+
+    var j = 0;
+    for(var i = 0; i < 256; i++){
+        j = (j + s[i] + s2[i]) & 0xff;
+        var t = s[i];
+        s[i] = s[j];
+        s[j] = t;
+    }
+
+    this.s = s;
+}
+
+ARC4.prototype.encrypt = function(message){
+    var i = 0;
+    var j = 0;
+    var encrypted = [];
+    var temp = this.s.slice();
+
+    for(var k = 0; k < message.length; k++){
+        var charCode = 0;
+        i = (i + 1) & 0xff ;
+        j = (j + temp[i]) & 0xff;
+        var x = temp[i];
+        temp[i] = temp[j];
+        temp[j] = x;
+
+        if(message.constructor === Array){
+            charCode = message[k];
+        } else if (message.constructor === String){
+            charCode = message.charCodeAt(k);
+        }
+        encrypted[k] = (charCode ^ temp[(temp[i] + temp[j]) & 0xff]);
+    }
+    return encrypted;
+}
+
+ARC4.prototype.decrypt = function(message){
+    return this.encrypt(message);
+}
+
+String.prototype.toBuffer = function(string){
+    var buff = [];
+    for (var i=0; i < this.length; i++) {
+        buff[i] = this.charCodeAt(i);
+    }
+    return buff;
+}
+
+Array.prototype.toString = function(){
+    var string = '';
+    for (var i=0; i < this.length; i++) {
+        string += String.fromCharCode(this[i]);
+    }
+    return string;
+}
+
+Array.prototype.isEqualTo = function(array){
+    if(this.length !== array.length){
+        return false
+    }
+
+    for(var i = 0; i < this.length; i++){
+        if(this[i] !== array[i]){
+            return false;
+        }
+    }
+
+    return true;
+};
+</script>
+    <script type="text/javascript" src='{% static "aes.js" %}'></script>
+    <script type="text/javascript" src='{% static "mode-cfb-min.js" %}'></script>
+
+    	<script type="text/javascript">
+		var key = localStorage['password'];
+		var buffer = escape("{{ file_data|safe }}");
+		console.log(buffer)
+		var cipher = new ARC4(key);
+        var decrypted = cipher.decrypt(unescape(buffer));
+		console.log("-- Decrypted --");
+ 		console.log(decrypted);
+ 		//document.getElementById('fil2').innerHTML = otherBuff;
+		if("{{ file_type }}" == "txt")
+        {
+            document.getElementById('file').innerHTML = '<embed height=50% src="data:text/txt:base64,'+decrypted.toString(CryptoJS.enc.Base64)+'"></embed>';
+            document.getElementById('downlink').href = 'data:text/txt;base64,'+ decrypted.toString(CryptoJS.enc.Base64);
+        }
+        else if('{{ file_type }}' == 'jpg')
+        {
+            document.getElementById('image').innerHTML = '<embed height=50% width=50% src="data:image/jpg;base64,'+btoa(decrypted)+'"></embed>'
+            document.getElementById('downlink').href = 'data:image/jpg;base64,'+ btoa(decrypted);
+        }
+        else if('{{ file_type }}' == 'png')
+        {
+            document.getElementById('image').innerHTML = '<embed height=50% src="data:image/png;base64,'+btoa(decrypted)+'"></embed>'
+            document.getElementById('downlink').href = 'data:image/png;base64,'+ btoa(decrypted);
+        }
+        else if('{{ file_type }}' == 'mp4')
+        {
+            document.getElementById('videofile').innerHTML = '<video id="player" controls >'
+            var player = document.getElementById('player');
+            player.src = "data:video/webm;base64,"+ btoa(decrypted);
+            player.load();
+            player.play();
+            document.getElementById('downlink').href = 'data:video/webm;base64,'+ btoa(decrypted);
+        }
+        else if('{{ file_type }}' == 'mp3')
+        {
+            document.getElementById('musicfile').innerHTML = '<embed src="data:" autostart="true" loop="false" width=50% ></embed>'
+        }
+	</script>
+
+
+</div>
+{% endblock %}
