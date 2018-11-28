@@ -14,7 +14,8 @@ class DirFileDetailSerializer(serializers.ModelSerializer):
                   'encryption_scheme',
                   'file_path',
                   'md5code',
-                  'last_update_by', )
+                  'last_update_by',
+                  'parent_id', )
 
 
 class DirFileDataSerializer(serializers.ModelSerializer):
@@ -24,6 +25,7 @@ class DirFileDataSerializer(serializers.ModelSerializer):
                   'owners',
                   'name',
                   'file_type',
+                  'parent_id',
                   'modified_time',
                   'encryption_scheme',
                   'file_path',

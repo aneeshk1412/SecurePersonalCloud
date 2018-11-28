@@ -13,6 +13,7 @@ class DirFile(models.Model):
     encryption_scheme = models.CharField(max_length=100)
     md5code = models.TextField()
     file_path = models.TextField()
+    parent_id = models.PositiveIntegerField()
 
     # User Details , to be changed for file sharing
     # related name is name with which the other model calls this model

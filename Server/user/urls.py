@@ -17,11 +17,16 @@ from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 
+app_name = 'user'
+
 urlpatterns = [
     path('list/', views.DirFileList.as_view(), name='dir_file_list'),
     path('details/<path:file_path>', views.DirFileDetail.as_view(), name='dir_file_view'),
     # path('users/', views.UserList.as_view()),
     path('userdata/', views.UserDetail.as_view()),
+    path('', views.user_home, name='user_home'),
+    path('tree/', views.tree_view, name='tree_view'),
+    path('<int:pk>/', views.dir_view, name='dir_view'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
