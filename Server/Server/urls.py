@@ -18,6 +18,9 @@ from django.urls import path
 from django.urls import include
 from rest_framework.schemas import get_schema_view
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 app_name = 'home_app'
 
@@ -32,4 +35,4 @@ urlpatterns = [
     path('user/<str:username>/', include('user.urls')),
     path('api-login/', include('rest_framework.urls')),
     path('schema/', schema_view),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
