@@ -1,0 +1,4 @@
+-Put comments for all the API functions and Function overrides
+-Start using requests to get Data
+-Make DirFileDataSerializer from the details one 
+-Choice to separate the API from the Browser View or see how to implement API to HTML

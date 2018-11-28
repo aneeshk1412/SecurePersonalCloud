@@ -16,9 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from rest_framework.schemas import get_schema_view
+
+schema_view = get_schema_view(title='Secure Personal Cloud')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('user.urls')),
     path('api-login/', include('rest_framework.urls')),
+    path('schema/', schema_view),
 ]

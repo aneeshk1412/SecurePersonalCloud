@@ -4,3 +4,6 @@ django-filter
 pycrypto
 pycryptodome
 requests
+coreapi
+pyyaml
+coreapi-cli
