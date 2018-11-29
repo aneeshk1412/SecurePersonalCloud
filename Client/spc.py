@@ -149,7 +149,7 @@ elif user_details_cond:
 
 elif observe_path_cond:
     # validate username password scheme user pass and server url
-    if os.path.exists(sys.argv[2]):
+    if os.path.exists(os.path.expanduser(sys.argv[2])) and os.path.isdir(os.path.expanduser(sys.argv[2])):
         user_data['observed_dir'] = sys.argv[2]
         # add to get pk of observed dir
         # add a request to the observed dir
