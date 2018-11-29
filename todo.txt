@@ -6,14 +6,16 @@
 
 
 BASH commands needed
+Here path can be absolute or relative
 for last modified time
-find . -exec date -r {} \;
+find <path> -exec date -r {} \;
 for properly regexing name
-find . |
+find <path> |
 for finding md5sum
-find . -exec md5sum {} \;
+find <path> -exec md5sum {} \;
 for file type
-find . -exec file -b --mime-type {} \;
+find <path> -exec file -b --mime-type {} \;
 
 PYTHON commands needed
+works on relative too
 os.path.basename(<os path>)
