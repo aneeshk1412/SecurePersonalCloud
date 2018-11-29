@@ -1,0 +1,18 @@
+{% extends "basesite.html" %}
+
+{% block content %}
+<h1>{{ dir }}</h1>
+<div>
+{% if files %}
+    <ul>
+      {% for f in files %}
+        <li><div><p>{{ f.dorf }} <a href="/user/{{ user }}/{{ f.pk }}/">{{ f.name }}</a> </p><p>{{ f.modifiedTime }}</p></div></li>
+      {% endfor %}
+    </ul>
+    <a href="/user/{{ user }}/tree/" class="button" align="left">Tree View</a>
+  {% else %}
+    <p>No files are added.</p>
+    <a href="/user/{{ user }}/tree/" class="button" align="left">Tree View</a>
+  {% endif %}
+</div>
+{% endblock %}
