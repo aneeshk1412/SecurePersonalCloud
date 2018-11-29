@@ -86,7 +86,7 @@ except:
     pass
 
 if server_cond:
-    # Prints Server Details
+    # validate server url
     if os.path.exists(os.path.expanduser(os.path.join("~", "spc_details"))):
         read_details()
         # ip and port
@@ -148,14 +148,17 @@ elif user_details_cond:
         print("%s : %s\n" % (k, v))
 
 elif observe_path_cond:
+    # validate username password scheme user pass and server url
     if os.path.exists(sys.argv[2]):
         user_data['observed_dir'] = sys.argv[2]
         # add to get pk of observed dir
+        # add a request to the observed dir
         write_details()
     else:
         print("Error: Directory doesn't exist")
 
 elif login_cond:
+    # validate site-url
     user = input('Username: ')
     pas = getpass.getpass(prompt='Password: ', stream=None)
     cpas = getpass.getpass(prompt='Confirm Password: ', stream=None)
