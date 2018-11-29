@@ -15,7 +15,7 @@ class DirFileList(generics.ListCreateAPIView):
     # setting the basic queryset and serializer
     queryset = DirFile.objects.all()
     serializer_class = DirFileDetailSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(owners=User.objects.filter(username__exact=self.request.user))
@@ -31,7 +31,7 @@ class DirFileList(generics.ListCreateAPIView):
 class DirFileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DirFile.objects.all()
     serializer_class = DirFileDetailSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
     # changing lookup fields according to the path
     lookup_field = 'file_path'
     lookup_url_kwarg = 'file_path'
@@ -43,7 +43,7 @@ class DirFileDataList(generics.ListCreateAPIView):
     # setting the basic queryset and serializer
     queryset = DirFile.objects.all()
     serializer_class = DirFileDataSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(owners=User.objects.filter(username__exact=self.request.user))
@@ -59,7 +59,7 @@ class DirFileDataList(generics.ListCreateAPIView):
 class DirFileData(generics.RetrieveUpdateDestroyAPIView):
     queryset = DirFile.objects.all()
     serializer_class = DirFileDataSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
     # changing lookup fields according to the path
     lookup_field = 'file_path'
     lookup_url_kwarg = 'file_path'
@@ -77,6 +77,7 @@ class DirFileData(generics.RetrieveUpdateDestroyAPIView):
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'username'
     lookup_url_kwarg = 'username'
 
