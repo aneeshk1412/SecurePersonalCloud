@@ -3,12 +3,38 @@
 {% block content %}
 <h1>{{ file_name }}</h1>
 <div>
-    <div id="textfile"></div>
+    <div id="text_file"></div>
+    <div id="image_file"></div>
+    <div id="video_file"></div>
+    <div id="music_file"></div>
+    <div id="down_link"></div>
     <a href="/user/{{ user }}/tree/" class="button" align="left">Tree View</a>
-
-
     <script>
-
+        var decrypted = "{ file_data }"
+        if("{{ file_type }}" == "txt")
+        {
+            document.getElementById('text_file').innerHTML = '<embed width=50% src ="data:text/plain;base64,'+ decrypted +'">';
+            document.getElementById('down_link').href = 'data:text/plain;base64,'+ decrypted;
+        }
+        else if('{{ file_type }}' == 'jpg')
+        {
+            document.getElementById('image_file').innerHTML = '<embed width=50% src="data:image/jpg;base64,'+ decrypted +'">'
+            document.getElementById('down_link').href = 'data:image/jpg;base64,'+ decrypted;
+        }
+        else if('{{ file_type }}' == 'png')
+        {
+            document.getElementById('image_file').innerHTML = '<embed src="data:image/png;base64,'+ decrypted +'">'
+            document.getElementById('down_link').href = 'data:image/png;base64,'+ decrypted;
+        }
+        else if('{{ file_type }}' == 'mp4')
+        {
+            document.getElementById('video_file').innerHTML = '<video id="player" controls >'
+            var player = document.getElementById('player');
+            player.src = "data:video/webm;base64,"+ decrypted;
+            player.load();
+            player.play();
+            document.getElementById('down_link').href = 'data:video/webm;base64,'+ decrypted;
+        }
     </script>
 </div>
 {% endblock %}

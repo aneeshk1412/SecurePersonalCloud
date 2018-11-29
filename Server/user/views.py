@@ -129,35 +129,18 @@ def dir_view(request, pk, username):
         context = {'files': res_docs, 'dir': dir_name}
         return render(request, 'directorypage.html', context)
     else:
-        if cur_dir.encryption_scheme == 'aes':
-            filename = cur_dir.name
-            filename = filename[:-6]
-            # look at this later
-            filedata = cur_dir.fileContent
-            # look at this later
-            filetype = cur_dir.file_type
-            context = {'file_name': filename, 'file_data': filedata, 'file_type': filetype}
-            return render(request, 'AESFileview.html', context)
-        elif cur_dir.encryption_scheme == 'blo':
-            filename = cur_dir.name
-            filename = filename[:-6]
-            # look at this later
-            filedata = cur_dir.fileContent
-            # look at this later
-            filetype = cur_dir.file_type
-            context = {'file_name': filename, 'file_data': filedata, 'file_type': filetype}
-            return render(request, 'BLOFileview.html', context)
-        elif cur_dir.encryption_scheme == 'arc':
-            filename = cur_dir.name
-            filename = filename[:-6]
-            # look at this later
-            # filedata = ast.literal_eval(cur_dir.fileContent) doesnt work
-            # filedata= filedata.decode() doesnt work
-            filedata = str(cur_dir.fileContent)
-            # print(type(filedata))
-            filedata = filedata[2:-1].replace('"', '\\"')
-            # filedata = filedata.encode('utf-8')
-            # look at this later
-            filetype = cur_dir.file_type
-            context = {'file_name': filename, 'file_data': filedata, 'file_type': filetype}
-            return render(request, 'ARC4Fileview.html', context)
+        file_name = cur_dir.name
+        file_data = cur_dir.file_content
+        file_type = cur_dir.file_type
+        context = { 'file_name': file_name, 'file_data': file_data, 'file_type': file_type}
+        return render(request, 'filepage.html', context)
+    # else:
+        # if cur_dir.encryption_scheme == 'aes':
+        #     filename = cur_dir.name
+        #     filename = filename[:-6]
+        #     # look at this later
+        #     filedata = cur_dir.fileContent
+        #     # look at this later
+        #     filetype = cur_dir.file_type
+        #     context = {'file_name': filename, 'file_data': filedata, 'file_type': filetype}
+        #     return render(request, 'AESFileview.html', context)
