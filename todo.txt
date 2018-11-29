@@ -14,3 +14,6 @@ for finding md5sum
 find . -exec md5sum {} \;
 for file type
 find . -exec file -b --mime-type {} \;
+
+PYTHON commands needed
+os.path.basename(<os path>)
