@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import DirFile
-from .serializers import DirFileDetailSerializer, UserSerializer, DirFileDataSerializer
+from .serializers import DirFileDetailSerializer, UserSerializer, DirFileDataSerializer, DirStatusSerializer
 from rest_framework import generics
 from django.contrib.auth.models import User
 from rest_framework import permissions
@@ -18,7 +18,7 @@ class DirFileList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(owners=User.objects.filter(username__exact=self.request.user))
+        serializer.save(owners=User.objects.filter(username__exact=self.request.user.username))
         serializer.save(last_update_by=self.request.user.username)
 
     def get_queryset(self):
@@ -46,7 +46,7 @@ class DirFileDataList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(owners=User.objects.filter(username__exact=self.request.user))
+        serializer.save(owners=User.objects.filter(username__exact=self.request.user.username))
         serializer.save(last_update_by=self.request.user.username)
 
     def get_queryset(self):
@@ -80,6 +80,18 @@ class UserDetail(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'username'
     lookup_url_kwarg = 'username'
+
+
+class DirStatus(generics.ListAPIView):
+    queryset = DirFile.objects.all()
+    serializer_class = DirStatusSerializer
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        dir_path = self.kwargs['dir_path']
+        queryset = queryset.filter(file_path__startswith=dir_path)
+        return queryset.filter(owners__pk=self.request.user.pk)
 
 
 # Create your views here.

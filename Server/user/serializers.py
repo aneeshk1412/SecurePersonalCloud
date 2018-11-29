@@ -39,4 +39,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'dirfiles')
+        fields = ('id', 'username', 'dirfiles', )
+
+
+class DirStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DirFile
+        fields = ('file_path', 'md5code', 'modified_time', 'file_type', 'name', )

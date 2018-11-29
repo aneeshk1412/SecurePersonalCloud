@@ -3,3 +3,14 @@
 -Make DATA VIEWS
 -Make a status url which is list api view and needs dir path as input
 -Check if the ids are necessary or not
+
+
+BASH commands needed
+for last modified time
+find . -exec date -r {} \;
+for properly regexing name
+find . |
+for finding md5sum
+find . -exec md5sum {} \;
+for file type
+find . -exec file -b --mime-type {} \;

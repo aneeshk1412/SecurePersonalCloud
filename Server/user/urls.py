@@ -23,6 +23,7 @@ app_name = 'user'
 
 urlpatterns = [
     path('list/', views.DirFileList.as_view(), name='dir_file_list'),
+    path('status/<path:dir_path>', views.DirStatus.as_view(), name='dir_status'),
     path('details/<path:file_path>', views.DirFileDetail.as_view(), name='dir_file_view'),
     # path('users/', views.UserList.as_view()),
     path('userdata/', views.UserDetail.as_view()),
