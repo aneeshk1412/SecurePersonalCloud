@@ -1,6 +1,5 @@
 -Put comments for all the API functions and Function overrides
 -Start using requests to get Data
--Make DATA VIEWS
 
 Setting parent ids properly:
 find detail of parent directory using path of par directory [:-len(name)]
@@ -17,6 +16,19 @@ View and Update can be done by sharers
 ( get put methods : in status correspond to in server only and download it, in client and server modified and upload it back)
 Delete on server only by primary_owner
 ( delete method : in status correspond to in server only and delete it )
-
 M2:
 only owners as before, everyone can delete and update
+easier to implement now
+
+
+-Put spc status procedure in a function to allow reusing for sync
+-Always post data in string representation of base64 encoded format
+-Read file in rb -> b64encode(<bytearray>) //needs bytes like object -> en = str(en) -> en = en[2:-1]
+ -> Then apply encryption scheme (must be string to string)-> then send to database
+-Decoding can be done to str repr of b64 string or byte form of b64 string in python!
+-Decoding :
+ in cli: get encoded string -> apply decryption algo (string to string ) -> gives b64 string repr -> b6decode
+    -> get bytes form of file -> wb write to file
+ in web client : get encoded string -> apply decryption algo (string to string ) -> gives b64 string repr
+    -> need this only for embed!!
+
