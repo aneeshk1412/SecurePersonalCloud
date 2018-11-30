@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import coreapi
 import requests
 import getpass
+from datetime import datetime
 
 # Conditions required for arguments
 
@@ -50,7 +51,7 @@ def write_details():
 
     with open(os.path.expanduser(os.path.join("~", "spc_details/config.txt")), 'w+') as file:
         for k, v in user_data.items():
-            file.write("%s:%s\n" % (k, v))
+            file.write("%s|%s\n" % (k, v))
 
 
 def read_details():
@@ -60,7 +61,7 @@ def read_details():
     else:
         with open(os.path.expanduser(os.path.join("~", "spc_details/config.txt")), 'r') as file:
             for row in file:
-                data_list = re.split("[:\n]", row)
+                data_list = re.split("[|\n]", row)
                 user_data[data_list[0]] = data_list[1]
 
 
@@ -75,7 +76,7 @@ def validated(*args):
 def get_client_files(dir_name):
     bash_path_command = "find " + dir_name
     bash_md5_command = "find " + dir_name + " -exec md5sum {} ;"
-    bash_date_command = "find " + dir_name + " -exec date -r {} ;"
+    bash_date_command = "find " + dir_name + " -exec date -r +%FT%T.%6N%z {} ;"
     bash_type_command = "find " + dir_name + " -exec file -b --mime-type {} ;"
 
     process = subprocess.Popen(bash_path_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -105,24 +106,21 @@ def get_client_files(dir_name):
     date_list = date_list.decode().split('\n')
     type_list = type_list.decode().split('\n')
 
-    client_files = []
+    func_client_files = []
     for i in range(0, len(path_list)):
         dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i]}
         if path_list[i] in md5_list:
             dict_obj['md5code'] = md5_list[path_list[i]]
         else:
             dict_obj['md5code'] = '-'
-        client_files.append(dict_obj)
+        func_client_files.append(dict_obj)
 
-    for c in client_files:
-        print(c)
-    return client_files
+    return func_client_files
 
 
 # The conditions and actions to be taken programmed below
 
 read_details()
-get_client_files(sys.argv[1])
 
 if server_cond:
     # validate server url
@@ -174,6 +172,7 @@ elif set_url_cond:
     if site_check_req.ok:
         user_data['site_url'] = site_url
         write_details()
+        print('Server was set to the URL : ' + site_url)
     else:
         print('Invalid URL provided , please try again')
 
@@ -214,7 +213,18 @@ elif login_cond:
             user_data['encryption_scheme'] = enc_type
             user_data['encryption_password'] = enc_pas
             # add user_id here
-            write_details()
+            auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
+            client = coreapi.Client(auth=auth)
+            try:
+                print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
+                document = client.get(user_data['site_url'] + 'schema/')
+                write_details()
+                print('Logged in successfully as ' + user_data['username'] + '. Please select a directory to be observed')
+            except coreapi.exceptions.ErrorMessage:
+                print('There was an error in logging in ( Invalid account details ). Please try again.')
+            except coreapi.exceptions.NetworkError:
+                print('There was a network error. Please try again.')
+
     else:
         print('The passwords did not match, please try again')
 
@@ -229,6 +239,7 @@ elif status_cond:
         conn_to_scheme = True
     except:
         pass
+
     if conn_to_scheme:
         server_files = client.action(document, ['user', 'status', 'read'],
                                      params={'username': user_data['username'],
@@ -236,9 +247,23 @@ elif status_cond:
         server_files = [dict(s) for s in server_files]
         print("Server Files :")
         for s in server_files:
+            d = s['modified_time']
+            if ":" == d[-3:-2]:
+                d = d[:-3] + d[-2:]
+            s['modified_time'] = datetime.strptime(s['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
+            s['file_path'] = s['file_path'][:-1]
             print(s)
-        get_client_files(dir_name=user_data['observed_dir'])
-
+        client_files = get_client_files(dir_name=user_data['observed_dir'])
+        print("Client Files :")
+        for c in client_files:
+            c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
+            print(c)
+        status_client_only = []
+        status_server_only = []
+        status_diff_content = []
+        status_in_both = []
+    else:
+        print("Setup isn't done properly. Please Login and set a URL and Directory")
 
 else:
     print("spc: invalid option -- ", end='')
