@@ -18,7 +18,7 @@ class DirFileList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(owners=User.objects.filter(username__exact=self.request.user.username))
+        # serializer.save(owners=User.objects.filter(username__exact=self.request.user.username))
         serializer.save(last_update_by=self.request.user.username)
 
     def get_queryset(self):
@@ -46,7 +46,7 @@ class DirFileDataList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(owners=User.objects.filter(username__exact=self.request.user.username))
+        # serializer.save(owners=User.objects.filter(username__exact=self.request.user.username))
         serializer.save(last_update_by=self.request.user.username)
 
     def get_queryset(self):
