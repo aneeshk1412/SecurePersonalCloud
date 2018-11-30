@@ -6,7 +6,7 @@ import sys
 import os
 import re
 from urllib.parse import urlparse
-from coreapi import Client
+import coreapi
 import requests
 import getpass
 
@@ -72,18 +72,57 @@ def validated(*args):
             return True
 
 
+def get_client_files(dir_name):
+    bash_path_command = "find " + dir_name
+    bash_md5_command = "find " + dir_name + " -exec md5sum {} ;"
+    bash_date_command = "find " + dir_name + " -exec date -r {} ;"
+    bash_type_command = "find " + dir_name + " -exec file -b --mime-type {} ;"
+
+    process = subprocess.Popen(bash_path_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (path_list, err) = process.communicate()
+    process = subprocess.Popen(bash_md5_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (md5_list, err) = process.communicate()
+    process = subprocess.Popen(bash_date_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (date_list, err) = process.communicate()
+    process = subprocess.Popen(bash_type_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (type_list, err) = process.communicate()
+
+    path_list = path_list.decode().split('\n')
+    path_list = list(filter(None, path_list))
+
+    md5_list = md5_list.decode().split('\n')
+    md5_list = list(filter(None, md5_list))
+    temp = md5_list[:]
+    temp_keys = []
+    temp_vals = []
+    md5_list.clear()
+    for t in temp:
+        temp_data = t.split('  ', 1)
+        temp_keys.append(temp_data[1])
+        temp_vals.append(temp_data[0])
+    md5_list = dict(zip(temp_keys, temp_vals))
+
+    date_list = date_list.decode().split('\n')
+    type_list = type_list.decode().split('\n')
+
+    client_files = []
+    for i in range(0, len(path_list)):
+        dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i]}
+        if path_list[i] in md5_list:
+            dict_obj['md5code'] = md5_list[path_list[i]]
+        else:
+            dict_obj['md5code'] = '-'
+        client_files.append(dict_obj)
+
+    for c in client_files:
+        print(c)
+    return client_files
+
+
 # The conditions and actions to be taken programmed below
 
 read_details()
-
-# Site Setting for Core API
-conn_to_scheme = False
-client = Client()
-try:
-    document = client.get(user_data['site_url'] + 'schema/')
-    conn_to_scheme = True
-except:
-    pass
+get_client_files(sys.argv[1])
 
 if server_cond:
     # validate server url
@@ -178,6 +217,28 @@ elif login_cond:
             write_details()
     else:
         print('The passwords did not match, please try again')
+
+elif status_cond:
+    # validate url , username, password, observing directory
+    # Site Setting for Core API
+    conn_to_scheme = False
+    auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
+    client = coreapi.Client(auth=auth)
+    try:
+        document = client.get(user_data['site_url'] + 'schema/')
+        conn_to_scheme = True
+    except:
+        pass
+    if conn_to_scheme:
+        server_files = client.action(document, ['user', 'status', 'read'],
+                                     params={'username': user_data['username'],
+                                             'dir_path': user_data['observed_dir']})
+        server_files = [dict(s) for s in server_files]
+        print("Server Files :")
+        for s in server_files:
+            print(s)
+        get_client_files(dir_name=user_data['observed_dir'])
+
 
 else:
     print("spc: invalid option -- ", end='')
