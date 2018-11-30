@@ -10,6 +10,7 @@ import coreapi
 import requests
 import getpass
 from datetime import datetime
+from pathlib import Path
 
 # Conditions required for arguments
 
@@ -73,42 +74,40 @@ def validated(*args):
             return True
 
 
+def command_run(bash_command):
+    process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (temp_list, err) = process.communicate()
+    temp_list = temp_list.decode().split('\n')
+    temp_list = list(filter(None, temp_list))
+    return temp_list
+
+
 def get_client_files(dir_name):
+    bash_name_command = "find " + dir_name + " -exec basename {} ;"
     bash_path_command = "find " + dir_name
     bash_md5_command = "find " + dir_name + " -exec md5sum {} ;"
-    bash_date_command = "find " + dir_name + " -exec date -r +%FT%T.%6N%z {} ;"
+    bash_date_command = "find " + dir_name + " -exec date -r {} +%FT%T.%6N%z ;"
     bash_type_command = "find " + dir_name + " -exec file -b --mime-type {} ;"
 
-    process = subprocess.Popen(bash_path_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (path_list, err) = process.communicate()
-    process = subprocess.Popen(bash_md5_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (md5_list, err) = process.communicate()
-    process = subprocess.Popen(bash_date_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (date_list, err) = process.communicate()
-    process = subprocess.Popen(bash_type_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (type_list, err) = process.communicate()
+    name_list = command_run(bash_name_command)
+    path_list = command_run(bash_path_command)
+    md5_list = command_run(bash_md5_command)
+    date_list = command_run(bash_date_command)
+    type_list = command_run(bash_type_command)
 
-    path_list = path_list.decode().split('\n')
-    path_list = list(filter(None, path_list))
-
-    md5_list = md5_list.decode().split('\n')
-    md5_list = list(filter(None, md5_list))
     temp = md5_list[:]
     temp_keys = []
-    temp_vals = []
+    temp_values = []
     md5_list.clear()
     for t in temp:
         temp_data = t.split('  ', 1)
         temp_keys.append(temp_data[1])
-        temp_vals.append(temp_data[0])
-    md5_list = dict(zip(temp_keys, temp_vals))
-
-    date_list = date_list.decode().split('\n')
-    type_list = type_list.decode().split('\n')
+        temp_values.append(temp_data[0])
+    md5_list = dict(zip(temp_keys, temp_values))
 
     func_client_files = []
     for i in range(0, len(path_list)):
-        dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i]}
+        dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i], 'name': name_list[i]}
         if path_list[i] in md5_list:
             dict_obj['md5code'] = md5_list[path_list[i]]
         else:
@@ -127,7 +126,7 @@ if server_cond:
     if os.path.exists(os.path.expanduser(os.path.join("~", "spc_details"))):
         read_details()
         # ip and port
-        if validated('site-url'):
+        if validated('site_url'):
             parsed = urlparse(user_data['site_url'])
             print('IP: ' + str(parsed.hostname))
             print('Port: ' + str(parsed.port))
@@ -145,8 +144,7 @@ elif en_de_list_cond:
         print(s)
 
 elif help_cond:
-    print(
-        'usage: spc [server set-url <url>] [config edit] [observe <abs-dir-path>] [status] [sync] [--server] [--version] [--help] [en-de list] [en-de update] [en-de update <abs_file_path>]')
+    print('usage: spc [server set-url <url>] [config edit] [observe <abs-dir-path>] [status] [sync] [--server] [--version] [--help] [en-de list] [en-de update] [en-de update <abs_file_path>]')
     print('For setting url: server set-url <url>')
     print('For setting up username, password, encryption-scheme, encryption-password: config edit')
     print('For displaying username, password, encryption-scheme, encryption-password and other details: config print')
@@ -192,6 +190,7 @@ elif observe_path_cond:
         # add to get pk of observed dir
         # add a request to the observed dir
         write_details()
+        print('Currently observing Directory : ' + user_data['observed_dir'])
     else:
         print("Error: Directory doesn't exist")
 
@@ -231,21 +230,16 @@ elif login_cond:
 elif status_cond:
     # validate url , username, password, observing directory
     # Site Setting for Core API
-    conn_to_scheme = False
     auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
     client = coreapi.Client(auth=auth)
     try:
+        print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
         document = client.get(user_data['site_url'] + 'schema/')
-        conn_to_scheme = True
-    except:
-        pass
-
-    if conn_to_scheme:
         server_files = client.action(document, ['user', 'status', 'read'],
                                      params={'username': user_data['username'],
                                              'dir_path': user_data['observed_dir']})
         server_files = [dict(s) for s in server_files]
-        print("Server Files :")
+        print('---------------------------------------------------------------------------')
         for s in server_files:
             d = s['modified_time']
             if ":" == d[-3:-2]:
@@ -254,16 +248,29 @@ elif status_cond:
             s['file_path'] = s['file_path'][:-1]
             print(s)
         client_files = get_client_files(dir_name=user_data['observed_dir'])
-        print("Client Files :")
+        base_name = os.path.basename(Path(user_data['observed_dir']))
         for c in client_files:
             c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
-            print(c)
-        status_client_only = []
-        status_server_only = []
+            c['file_path'] = base_name + '/' + c['file_path'][len(user_data['observed_dir']):]
+
         status_diff_content = []
         status_in_both = []
-    else:
-        print("Setup isn't done properly. Please Login and set a URL and Directory")
+        client_dict = {cf['file_path']: cf for cf in client_files}
+        server_dict = {cf['file_path']: cf for cf in server_files}
+        status_client_only = list(set(client_dict.keys()) - set(server_dict.keys()))
+        status_server_only = list(set(server_dict.keys()) - set(client_dict.keys()))
+        in_both_keys = list(set(server_dict.keys()) & set(client_dict.keys()))
+        for b_key in in_both_keys:
+            if client_dict[b_key]['md5code'] == server_dict[b_key]['md5code']:
+                status_in_both.append(b_key)
+            else:
+                status_diff_content.append(b_key)
+
+
+    except coreapi.exceptions.ErrorMessage:
+        print('There was an error in logging in ( Invalid account details ). Please try again.')
+    except coreapi.exceptions.NetworkError:
+        print('There was a network error. Please try again.')
 
 else:
     print("spc: invalid option -- ", end='')
