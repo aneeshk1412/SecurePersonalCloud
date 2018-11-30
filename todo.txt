@@ -16,9 +16,5 @@ find <path> -exec md5sum {} \;
 for file type
 find <path> -exec file -b --mime-type {} \;
 
-PYTHON commands needed
-works on relative too
-os.path.basename(<os path>)
-
-2018-11-30T04:05:24.421012+05:30 - %FT%T.%f%:z  %FT%T.%6N%:z
-Fri Nov 30 21:55:12 IST 2018  -
+Setting parent ids properly
+find detail of parent directory using path of par directory [:-len(name)]
