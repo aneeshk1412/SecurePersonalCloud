@@ -1,20 +1,22 @@
 -Put comments for all the API functions and Function overrides
 -Start using requests to get Data
 -Make DATA VIEWS
--Make a status url which is list api view and needs dir path as input
--Check if the ids are necessary or not
 
-
-BASH commands needed
-Here path can be absolute or relative
-for last modified time
-find <path> -exec date -r {} \;
-for properly regexing name
-find <path> |
-for finding md5sum
-find <path> -exec md5sum {} \;
-for file type
-find <path> -exec file -b --mime-type {} \;
-
-Setting parent ids properly
+Setting parent ids properly:
 find detail of parent directory using path of par directory [:-len(name)]
+get pk of parent
+set it as parent id
+if no data set parent id = 0
+
+File Sharing:
+Make primary_owner as single pk field
+Rename owner to sharers
+Others remain same
+Sharing criterions:
+View and Update can be done by sharers
+( get put methods : in status correspond to in server only and download it, in client and server modified and upload it back)
+Delete on server only by primary_owner
+( delete method : in status correspond to in server only and delete it )
+
+M2:
+only owners as before, everyone can delete and update
