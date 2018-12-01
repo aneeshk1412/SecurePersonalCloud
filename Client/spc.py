@@ -302,6 +302,8 @@ elif status_cond:
     print(" ")
 
 elif sync_dir_cond:
+    print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
+    document = client.get(user_data['site_url'] + 'schema/')
     (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
 
     # Handling only on Client Files
