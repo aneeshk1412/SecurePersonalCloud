@@ -504,6 +504,12 @@ elif sync_dir_cond:
         elif choice_1 == '3':
             for s in status_diff_content:
                 print("Do you want to keep the server copy or client copy of " + s + " ? (s/c)")
+                print("Client Last Modification Time : ")
+                print(client_dict[s]['modified_time'])
+                print("\n")
+                print("Server Last Modification Time : ")
+                print(server_dict[s]['modified_time'])
+                print("\n")
                 if server_dict[s]['file_type'] == 'inode/directory':
                     print("This is a directory, all data from whichever side is deleted will be lost.")
                 choice_2 = input()
