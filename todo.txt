@@ -21,14 +21,45 @@ only owners as before, everyone can delete and update
 easier to implement now
 
 
--Put spc status procedure in a function to allow reusing for sync
+
 -Always post data in string representation of base64 encoded format
 -Read file in rb -> b64encode(<bytearray>) //needs bytes like object -> en = str(en) -> en = en[2:-1]
  -> Then apply encryption scheme (must be string to string)-> then send to database
 -Decoding can be done to str repr of b64 string or byte form of b64 string in python!
 -Decoding :
  in cli: get encoded string -> apply decryption algo (string to string ) -> gives b64 string repr -> b6decode
-    -> get bytes form of file -> wb write to file
+    -> get bytes form of file -> wb+ write to file (+ to replace)
  in web client : get encoded string -> apply decryption algo (string to string ) -> gives b64 string repr
     -> need this only for embed!!
 
+For SYNC:
+	-Put spc status procedure in a function to allow reusing for sync
+	-First calculate spc status files 
+	-For each file in client only category :- upload it to server or delete from client
+	-For each file in server only category :- download it to client or delete from server
+	-For each file in modified category ask which copy to keep (show modified times of the server and client files---do this in spc status too):- upload (delete and new) or download (use wb+ to write and replace properly )
+	- for any delete option on the server check if its shared and warn
+	- for last category - 2 options... can trust md5 or download data to check parity
+
+In view and Webpage : if no of owners > 1 then put a mark beside it! Shared file/folder
+
+
+
+
+	>>> from datetime import datetime
+	>>> a = datetime.now()
+	>>> a
+	datetime.datetime(2018, 12, 1, 4, 3, 6, 202355)
+	>>> a = datetime.now().strftime('%c')
+	>>> a
+	'Sat Dec  1 04:03:30 2018'
+	>>> 
+
+
+WISHLIST : allowing to add files / folders from webpage
+
+
+Deadlock and Race :
+Race :
+	Putting a lock on all the files of the user in the first query of sync (even before checking status)
+	add a timefield for the user
