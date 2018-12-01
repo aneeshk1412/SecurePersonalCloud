@@ -165,7 +165,7 @@ def dir_view(request, pk, username):
         return render(request, 'directorypage.html', context)
     else:
         file_name = cur_dir.name
-        file_data = cur_dir.file_content
+        file_data = cur_dir.file_contents
         file_type = cur_dir.file_type
         context = { 'file_name': file_name, 'file_data': file_data, 'file_type': file_type}
         return render(request, 'filepage.html', context)
