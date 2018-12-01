@@ -33,13 +33,12 @@ easier to implement now
     -> need this only for embed!!
 
 For SYNC:
-	-Put spc status procedure in a function to allow reusing for sync
-	-First calculate spc status files 
-	-For each file in client only category :- upload it to server or delete from client
-	-For each file in server only category :- download it to client or delete from server
-	-For each file in modified category ask which copy to keep (show modified times of the server and client files---do this in spc status too):- upload (delete and new) or download (use wb+ to write and replace properly )
-	- for any delete option on the server check if its shared and warn
-	- for last category - 2 options... can trust md5 or download data to check parity
+
+	- delete from server
+	- put to server from client
+
+	- delete from client
+	- put to client from server
 
 In view and Webpage : if no of owners > 1 then put a mark beside it! Shared file/folder
 
