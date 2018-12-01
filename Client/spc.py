@@ -313,10 +313,11 @@ elif sync_dir_cond:
             print(s)
         print(" ")
         choice_1 = input("Do you want to transfer all of them to server ? (y/n)")
+        print("\n")
         if choice_1 == 'y':
             for s in status_client_only:
                 # call upload to server on client_dict[s]
-                print("Uploaded " + s + " to the server.")
+                print("Uploaded " + s + " to the server.\n")
             print("Done.\n")
         elif choice_1 == 'n':
             for s in status_client_only:
@@ -328,10 +329,10 @@ elif sync_dir_cond:
                 if choice_2 == 'm':
                     # call upload to server on client_dict[s] check if not directory to get filecontent
                     # pass userdata[observed_dir]
-                    print("Uploaded " + s + " to the server.")
+                    print("Uploaded " + s + " to the server.\n")
                 elif choice_2 == 'd':
                     # delete data from client
-                    print("Deleted " + s + " from client.")
+                    print("Deleted " + s + " from client.\n")
                 else:
                     print("Invalid Choice.")
                     sys.exit(2)
@@ -347,11 +348,12 @@ elif sync_dir_cond:
             print(s)
         print(" ")
         choice_1 = input("Do you want to download all of them to client ? (y/n)")
+        print("\n")
         if choice_1 == 'y':
             for s in status_server_only:
                 # call download from server for server_dict[s] also check file type
                 # pass user_data[observed_dir]
-                print("Downloaded " + s + " to the client.")
+                print("Downloaded " + s + " to the client.\n")
             print("Done.\n")
         elif choice_1 == 'n':
             for s in status_server_only:
@@ -363,10 +365,10 @@ elif sync_dir_cond:
                 if choice_2 == 'c':
                     # call download from server for server_dict[s] also check file type
                     # pass user_data[observed_dir]
-                    print("Downloaded " + s + " to the client.")
+                    print("Downloaded " + s + " to the client.\n")
                 elif choice_2 == 'd':
                     # delete data from server
-                    print("Deleted " + s + " from server.")
+                    print("Deleted " + s + " from server.\n")
                 else:
                     print("Invalid Choice.")
                     sys.exit(2)
@@ -390,13 +392,13 @@ elif sync_dir_cond:
             for s in status_diff_content:
                 # delete the file from client
                 # call download from server for server_dict[s]
-                print("Downloaded " + s + " from server.")
+                print("Downloaded " + s + " from server.\n")
             print("Done.\n")
         elif choice_1 == '2':
             for s in status_diff_content:
                 # call delete from server for server_dict[s]
                 # call upload to server for client_dict[s]
-                print("Uploaded " + s + " from client.")
+                print("Uploaded " + s + " from client.\n")
             print("Done.\n")
         elif choice_1 == '3':
             for s in status_diff_content:
@@ -407,11 +409,11 @@ elif sync_dir_cond:
                 if choice_2 == 's':
                     # delete file from client
                     # call download from server
-                    print("Downloaded " + s + " from server.")
+                    print("Downloaded " + s + " from server.\n")
                 elif choice_2 == 'c':
                     # delete file from server
                     # call upload from client
-                    print("Uploaded " + s + " from client.")
+                    print("Uploaded " + s + " from client.\n")
                 else:
                     print("Invalid choice.")
                     sys.exit(2)
