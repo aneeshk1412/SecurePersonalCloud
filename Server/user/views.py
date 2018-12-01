@@ -159,7 +159,7 @@ def dir_view(request, pk, username):
         return render(request, 'invalid.html')
     cur_dir = DirFile.objects.filter(owners__pk=request.user.id).get(id=pk)
     if cur_dir.file_type == 'inode/directory':
-        res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parentId__exact=pk)
+        res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parent_id__exact=pk)
         dir_name = cur_dir.name
         context = {'files': res_docs, 'dir': dir_name}
         return render(request, 'directorypage.html', context)
