@@ -121,14 +121,14 @@ def get_client_files(dir_name):
 def get_status():
     server_files = client.action(document, ['user', 'status', 'read'],
                                  params={'username': user_data['username'],
-                                         'dir_path': user_data['observed_dir']})
+                                         'dir_path': os.path.basename(Path(user_data['observed_dir']))})
     server_files = [dict(s) for s in server_files]
     for s in server_files:
         d = s['modified_time']
         if ":" == d[-3:-2]:
             d = d[:-3] + d[-2:]
+        s['modified_time'] = d
         s['modified_time'] = datetime.strptime(s['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
-        s['file_path'] = s['file_path'][:-1]
 
     client_files = get_client_files(dir_name=user_data['observed_dir'])
     base_name = os.path.basename(Path(user_data['observed_dir']))
@@ -152,11 +152,17 @@ def get_status():
     status_server_only.sort(key=len)
     status_diff_content.sort(key=len)
     status_in_both.sort(key=len)
+    print(client_dict)
+    print(server_dict)
     return status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict
 
 
+def total_file_path(file_path):
+    return os.path.dirname(os.path.expanduser(Path(user_data['observed_dir']))) + '/' + file_path
+
+
 def file_to_b64_str(file_path):
-    tot_file_path = os.path.dirname(os.path.expanduser(Path(user_data['observed_dir']))) + '/' + file_path
+    tot_file_path = total_file_path(file_path)
     with open(tot_file_path, 'rb') as infile:
         out_str = infile.read()
     out_str = base64.b64encode(out_str)
@@ -166,10 +172,16 @@ def file_to_b64_str(file_path):
 
 
 def b64_str_to_file(b64_str, file_path):
-    tot_file_path = os.path.dirname(os.path.expanduser(Path(user_data['observed_dir']))) + '/' + file_path
+    tot_file_path = total_file_path(file_path)
     out_bytes = base64.b64decode(b64_str)
     with open(tot_file_path, 'wb+') as outfile:
         outfile.write(out_bytes)
+
+
+def delete_from_client(file_path):
+    tot_file_path = total_file_path(file_path)
+    bash_del_command = "rm -rf " + tot_file_path
+    process = subprocess.Popen(bash_del_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 # The conditions and actions to be taken programmed below
@@ -282,8 +294,6 @@ elif login_cond:
                 print('There was an error in logging in ( Invalid account details ). Please try again.')
             except coreapi.exceptions.NetworkError:
                 print('There was a network error. Please try again.')
-            except:
-                print('Some error occured, please try again')
 
     else:
         print('The passwords did not match, please try again')
@@ -298,8 +308,6 @@ elif status_cond:
         print('There was an error in logging in ( Invalid account details ). Please try again.')
     except coreapi.exceptions.NetworkError:
         print('There was a network error. Please try again.')
-    except:
-        print('Some error occured, please try again')
 
     print("Files only on Client : ")
     for s in status_client_only:
