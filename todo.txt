@@ -1,11 +1,4 @@
 -Put comments for all the API functions and Function overrides
--Start using requests to get Data
-
-Setting parent ids properly:
-find detail of parent directory using path of par directory [:-len(name)]
-get pk of parent
-set it as parent id
-if no data set parent id = 0
 
 File Sharing:
 Make primary_owner as single pk field
@@ -21,7 +14,6 @@ only owners as before, everyone can delete and update
 easier to implement now
 
 
-
 -Always post data in string representation of base64 encoded format
 -Read file in rb -> b64encode(<bytearray>) //needs bytes like object -> en = str(en) -> en = en[2:-1]
  -> Then apply encryption scheme (must be string to string)-> then send to database
@@ -32,28 +24,7 @@ easier to implement now
  in web client : get encoded string -> apply decryption algo (string to string ) -> gives b64 string repr
     -> need this only for embed!!
 
-For SYNC:
-
-	- delete from server | also implies deleting all subdirs from server_dict and all lists
-	- put to server from client
-
-	- delete from client | also implies deleting all subdirs from client_dict and all lists
-	- put to client from server
-
 In view and Webpage : if no of owners > 1 then put a mark beside it! Shared file/folder
-
-
-
-
-	>>> from datetime import datetime
-	>>> a = datetime.now()
-	>>> a
-	datetime.datetime(2018, 12, 1, 4, 3, 6, 202355)
-	>>> a = datetime.now().strftime('%c')
-	>>> a
-	'Sat Dec  1 04:03:30 2018'
-	>>> 
-
 
 WISHLIST : allowing to add files / folders from webpage
 
@@ -62,5 +33,3 @@ Deadlock and Race :
 Race :
 	Putting a lock on all the files of the user in the first query of sync (even before checking status)
 	add a timefield for the user
-
-parent_id,
