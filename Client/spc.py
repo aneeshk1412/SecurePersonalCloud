@@ -12,6 +12,7 @@ import getpass
 from datetime import datetime
 from pathlib import Path
 import base64
+import copy
 
 # Conditions required for arguments
 
@@ -108,7 +109,8 @@ def get_client_files(dir_name):
 
     func_client_files = []
     for i in range(0, len(path_list)):
-        dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i], 'name': name_list[i]}
+        dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i],
+                    'name': name_list[i]}
         if path_list[i] in b2_list:
             dict_obj['b2code'] = b2_list[path_list[i]]
         else:
@@ -119,6 +121,7 @@ def get_client_files(dir_name):
 
 
 def get_status():
+    document = client.get(user_data['site_url'] + 'schema/')
     server_files = client.action(document, ['user', 'status', 'read'],
                                  params={'username': user_data['username'],
                                          'dir_path': os.path.basename(Path(user_data['observed_dir']))})
@@ -152,8 +155,6 @@ def get_status():
     status_server_only.sort(key=len)
     status_diff_content.sort(key=len)
     status_in_both.sort(key=len)
-    print(client_dict)
-    print(server_dict)
     return status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict
 
 
@@ -183,6 +184,37 @@ def delete_from_client(file_path):
     bash_del_command = "rm -rf " + tot_file_path
     process = subprocess.Popen(bash_del_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+
+def delete_from_server(file_path):
+    document = client.get(user_data['site_url'] + 'schema/')
+    delete_response = client.action(document, ['user', 'data', 'delete'], params={'username': user_data['username'],
+                                                                                  'file_path': file_path})
+
+
+def get_par_id(file_path):
+    if file_path[-1] == '/':
+        return 0
+    else:
+        file_path = os.path.dirname(Path(file_path))
+        document = client.get(user_data['site_url'] + 'schema/')
+        par_response = client.action(document, ['user', 'details', 'read'], params={'username': user_data['username'],
+                                                                                    'file_path': file_path})
+        return par_response['pk']
+
+
+def put_in_server_from_client(file_path, owner_list):
+    file_dict = copy.deepcopy(client_dict[file_path])
+    del file_dict['modified_time']
+    file_dict['username'] = user_data['username']
+    file_dict['owners'] = owner_list
+    file_dict['encryption_scheme'] = user_data['encryption_scheme']
+    if file_dict['file_type'] == 'inode/directory':
+        file_dict['file_contents'] = '-'
+    else:
+        file_dict['file_contents'] = file_to_b64_str(file_path)
+    file_dict['parent_id'] = get_par_id(file_path)
+    document = client.get(user_data['site_url'] + 'schema/')
+    par_response = client.action(document, ['user', 'datalist', 'create'], params=file_dict)
 
 # The conditions and actions to be taken programmed below
 
@@ -216,7 +248,8 @@ elif en_de_list_cond:
         print(s)
 
 elif help_cond:
-    print('usage: spc [server set-url <url>] [config edit] [observe <abs-dir-path>] [status] [sync] [--server] [--version] [--help] [en-de list] [en-de update] [en-de update <abs_file_path>]')
+    print(
+        'usage: spc [server set-url <url>] [config edit] [observe <abs-dir-path>] [status] [sync] [--server] [--version] [--help] [en-de list] [en-de update] [en-de update <abs_file_path>]')
     print('For setting url: server set-url <url>')
     print('For setting up username, password, encryption-scheme, encryption-password: config edit')
     print('For displaying username, password, encryption-scheme, encryption-password and other details: config print')
@@ -228,7 +261,8 @@ elif help_cond:
     print('For getting details of all commands: --help')
     print('For getting available Encryption-Decryption schemes: en-de list')
     print('For updating Encryption-Decryption scheme by directly giving details: en-de update')
-    print('For updating Encryption-Decryption scheme by giving absolute file path having details: en-de update <abs-file-path>')
+    print(
+        'For updating Encryption-Decryption scheme by giving absolute file path having details: en-de update <abs-file-path>')
 
 elif set_url_cond:
     site_url = sys.argv[3]
@@ -288,11 +322,17 @@ elif login_cond:
             try:
                 print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
                 document = client.get(user_data['site_url'] + 'schema/')
+                get_user_values = client.action(document, ['user', 'userdata', 'read'],
+                                                params={'username': user_data['username']})
+                user_data['user_id'] = get_user_values['id']
                 write_details()
-                print('Logged in successfully as ' + user_data['username'] + '. Please select a directory to be observed')
+                print(
+                    'Logged in successfully as ' + user_data['username'] + '. Please select a directory to be observed')
             except coreapi.exceptions.ErrorMessage:
+                write_details()
                 print('There was an error in logging in ( Invalid account details ). Please try again.')
             except coreapi.exceptions.NetworkError:
+                write_details()
                 print('There was a network error. Please try again.')
 
     else:
@@ -302,8 +342,8 @@ elif status_cond:
     # validate url , username, password, observing directory
     try:
         print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
-        document = client.get(user_data['site_url'] + 'schema/')
-        (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
+        (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict,
+         client_dict) = get_status()
     except coreapi.exceptions.ErrorMessage:
         print('There was an error in logging in ( Invalid account details ). Please try again.')
     except coreapi.exceptions.NetworkError:
@@ -327,9 +367,14 @@ elif status_cond:
     print(" ")
 
 elif sync_dir_cond:
-    print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
-    document = client.get(user_data['site_url'] + 'schema/')
-    (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
+    try:
+        print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
+        (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict,
+         client_dict) = get_status()
+    except coreapi.exceptions.ErrorMessage:
+        print('There was an error in logging in ( Invalid account details ). Please try again.')
+    except coreapi.exceptions.NetworkError:
+        print('There was a network error. Please try again.')
 
     # Handling only on Client Files
     if len(status_client_only) > 0:
