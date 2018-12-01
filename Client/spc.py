@@ -85,36 +85,83 @@ def command_run(bash_command):
 def get_client_files(dir_name):
     bash_name_command = "find " + dir_name + " -exec basename {} ;"
     bash_path_command = "find " + dir_name
-    bash_md5_command = "find " + dir_name + " -exec md5sum {} ;"
+    bash_b2_command = "find " + dir_name + " -exec b2sum {} ;"
     bash_date_command = "find " + dir_name + " -exec date -r {} +%FT%T.%6N%z ;"
     bash_type_command = "find " + dir_name + " -exec file -b --mime-type {} ;"
 
     name_list = command_run(bash_name_command)
     path_list = command_run(bash_path_command)
-    md5_list = command_run(bash_md5_command)
+    b2_list = command_run(bash_b2_command)
     date_list = command_run(bash_date_command)
     type_list = command_run(bash_type_command)
 
-    temp = md5_list[:]
+    temp = b2_list[:]
     temp_keys = []
     temp_values = []
-    md5_list.clear()
+    b2_list.clear()
     for t in temp:
         temp_data = t.split('  ', 1)
         temp_keys.append(temp_data[1])
         temp_values.append(temp_data[0])
-    md5_list = dict(zip(temp_keys, temp_values))
+    b2_list = dict(zip(temp_keys, temp_values))
 
     func_client_files = []
     for i in range(0, len(path_list)):
         dict_obj = {'file_path': path_list[i], 'file_type': type_list[i], 'modified_time': date_list[i], 'name': name_list[i]}
-        if path_list[i] in md5_list:
-            dict_obj['md5code'] = md5_list[path_list[i]]
+        if path_list[i] in b2_list:
+            dict_obj['b2code'] = b2_list[path_list[i]]
         else:
-            dict_obj['md5code'] = '-'
+            dict_obj['b2code'] = '-'
         func_client_files.append(dict_obj)
 
     return func_client_files
+
+
+def get_status():
+    auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
+    client = coreapi.Client(auth=auth)
+    try:
+        print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
+        document = client.get(user_data['site_url'] + 'schema/')
+        server_files = client.action(document, ['user', 'status', 'read'],
+                                     params={'username': user_data['username'],
+                                             'dir_path': user_data['observed_dir']})
+        server_files = [dict(s) for s in server_files]
+        for s in server_files:
+            d = s['modified_time']
+            if ":" == d[-3:-2]:
+                d = d[:-3] + d[-2:]
+            s['modified_time'] = datetime.strptime(s['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
+            s['file_path'] = s['file_path'][:-1]
+        
+        client_files = get_client_files(dir_name=user_data['observed_dir'])
+        base_name = os.path.basename(Path(user_data['observed_dir']))
+        for c in client_files:
+            c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
+            c['file_path'] = base_name + '/' + c['file_path'][len(user_data['observed_dir']):]
+
+        status_diff_content = []
+        status_in_both = []
+        client_dict = {cf['file_path']: cf for cf in client_files}
+        server_dict = {cf['file_path']: cf for cf in server_files}
+        status_client_only = list(set(client_dict.keys()) - set(server_dict.keys()))
+        status_server_only = list(set(server_dict.keys()) - set(client_dict.keys()))
+        in_both_keys = list(set(server_dict.keys()) & set(client_dict.keys()))
+        for b_key in in_both_keys:
+            if client_dict[b_key]['b2code'] == server_dict[b_key]['b2code']:
+                status_in_both.append(b_key)
+            else:
+                status_diff_content.append(b_key)
+        status_client_only.sort(key=len)
+        status_server_only.sort(key=len)
+        status_diff_content.sort(key=len)
+        status_in_both.sort(key=len)
+        return (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict)
+        
+    except coreapi.exceptions.ErrorMessage:
+        print('There was an error in logging in ( Invalid account details ). Please try again.')
+    except coreapi.exceptions.NetworkError:
+        print('There was a network error. Please try again.') 
 
 
 # The conditions and actions to be taken programmed below
@@ -229,48 +276,26 @@ elif login_cond:
 
 elif status_cond:
     # validate url , username, password, observing directory
-    # Site Setting for Core API
-    auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
-    client = coreapi.Client(auth=auth)
-    try:
-        print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
-        document = client.get(user_data['site_url'] + 'schema/')
-        server_files = client.action(document, ['user', 'status', 'read'],
-                                     params={'username': user_data['username'],
-                                             'dir_path': user_data['observed_dir']})
-        server_files = [dict(s) for s in server_files]
-        print('---------------------------------------------------------------------------')
-        for s in server_files:
-            d = s['modified_time']
-            if ":" == d[-3:-2]:
-                d = d[:-3] + d[-2:]
-            s['modified_time'] = datetime.strptime(s['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
-            s['file_path'] = s['file_path'][:-1]
-            print(s)
-        client_files = get_client_files(dir_name=user_data['observed_dir'])
-        base_name = os.path.basename(Path(user_data['observed_dir']))
-        for c in client_files:
-            c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
-            c['file_path'] = base_name + '/' + c['file_path'][len(user_data['observed_dir']):]
+    (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
+    print("Files only on Client : ")
+    for s in status_client_only:
+        print(s)
+    print(" ")
+    print("Files only on Server : ")
+    for s in status_server_only:
+        print(s)
+    print(" ")
+    print("Files which have been modified : ")
+    for s in status_diff_content:
+        print(s)
+    print(" ")
+    print("Files same in both : ")
+    for s in status_in_both:
+        print(s)
+    print(" ")
 
-        status_diff_content = []
-        status_in_both = []
-        client_dict = {cf['file_path']: cf for cf in client_files}
-        server_dict = {cf['file_path']: cf for cf in server_files}
-        status_client_only = list(set(client_dict.keys()) - set(server_dict.keys()))
-        status_server_only = list(set(server_dict.keys()) - set(client_dict.keys()))
-        in_both_keys = list(set(server_dict.keys()) & set(client_dict.keys()))
-        for b_key in in_both_keys:
-            if client_dict[b_key]['md5code'] == server_dict[b_key]['md5code']:
-                status_in_both.append(b_key)
-            else:
-                status_diff_content.append(b_key)
-
-
-    except coreapi.exceptions.ErrorMessage:
-        print('There was an error in logging in ( Invalid account details ). Please try again.')
-    except coreapi.exceptions.NetworkError:
-        print('There was a network error. Please try again.')
+elif sync_dir_cond:
+    
 
 else:
     print("spc: invalid option -- ", end='')

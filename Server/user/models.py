@@ -11,7 +11,7 @@ class DirFile(models.Model):
     file_type = models.CharField(max_length=20)
     modified_time = models.DateTimeField(auto_now=True)
     encryption_scheme = models.CharField(max_length=100)
-    md5code = models.TextField()
+    b2code = models.TextField()
     file_path = models.TextField()
     parent_id = models.PositiveIntegerField()
 

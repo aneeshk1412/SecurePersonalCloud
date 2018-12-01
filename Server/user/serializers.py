@@ -13,7 +13,7 @@ class DirFileDetailSerializer(serializers.ModelSerializer):
                   'modified_time',
                   'encryption_scheme',
                   'file_path',
-                  'md5code',
+                  'b2code',
                   'last_update_by',
                   'parent_id', )
 
@@ -29,7 +29,7 @@ class DirFileDataSerializer(serializers.ModelSerializer):
                   'modified_time',
                   'encryption_scheme',
                   'file_path',
-                  'md5code',
+                  'b2code',
                   'last_update_by',
                   'file_contents', )
 
@@ -45,4 +45,4 @@ class UserSerializer(serializers.ModelSerializer):
 class DirStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = DirFile
-        fields = ('file_path', 'md5code', 'modified_time', 'file_type', 'name', )
+        fields = ('file_path', 'b2code', 'modified_time', 'file_type', 'name', )
