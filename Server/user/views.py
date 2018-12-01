@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from rest_framework import permissions
 from .permissions import IsOwnerOrReadOnly
 from django.contrib.auth.decorators import login_required
+from rest_framework.response import Response
+from rest_framework import status
 # Create your views here.
 
 
@@ -52,6 +54,12 @@ class DirFileDataList(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = self.queryset
         return queryset.filter(owners__pk=self.request.user.pk)
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        instance = self.get_queryset().filter(file_path__startswith=obj.file_path)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # class based view to view update or delete file instances (DATA Included)
