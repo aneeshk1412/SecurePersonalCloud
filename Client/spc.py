@@ -118,55 +118,51 @@ def get_client_files(dir_name):
 
 
 def get_status():
-    auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
-    client = coreapi.Client(auth=auth)
-    try:
-        print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
-        document = client.get(user_data['site_url'] + 'schema/')
-        server_files = client.action(document, ['user', 'status', 'read'],
-                                     params={'username': user_data['username'],
-                                             'dir_path': user_data['observed_dir']})
-        server_files = [dict(s) for s in server_files]
-        for s in server_files:
-            d = s['modified_time']
-            if ":" == d[-3:-2]:
-                d = d[:-3] + d[-2:]
-            s['modified_time'] = datetime.strptime(s['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
-            s['file_path'] = s['file_path'][:-1]
-        
-        client_files = get_client_files(dir_name=user_data['observed_dir'])
-        base_name = os.path.basename(Path(user_data['observed_dir']))
-        for c in client_files:
-            c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
-            c['file_path'] = base_name + '/' + c['file_path'][len(user_data['observed_dir']):]
+    server_files = client.action(document, ['user', 'status', 'read'],
+                                 params={'username': user_data['username'],
+                                         'dir_path': user_data['observed_dir']})
+    server_files = [dict(s) for s in server_files]
+    for s in server_files:
+        d = s['modified_time']
+        if ":" == d[-3:-2]:
+            d = d[:-3] + d[-2:]
+        s['modified_time'] = datetime.strptime(s['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
+        s['file_path'] = s['file_path'][:-1]
 
-        status_diff_content = []
-        status_in_both = []
-        client_dict = {cf['file_path']: cf for cf in client_files}
-        server_dict = {cf['file_path']: cf for cf in server_files}
-        status_client_only = list(set(client_dict.keys()) - set(server_dict.keys()))
-        status_server_only = list(set(server_dict.keys()) - set(client_dict.keys()))
-        in_both_keys = list(set(server_dict.keys()) & set(client_dict.keys()))
-        for b_key in in_both_keys:
-            if client_dict[b_key]['b2code'] == server_dict[b_key]['b2code']:
-                status_in_both.append(b_key)
-            else:
-                status_diff_content.append(b_key)
-        status_client_only.sort(key=len)
-        status_server_only.sort(key=len)
-        status_diff_content.sort(key=len)
-        status_in_both.sort(key=len)
-        return (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict)
-        
-    except coreapi.exceptions.ErrorMessage:
-        print('There was an error in logging in ( Invalid account details ). Please try again.')
-    except coreapi.exceptions.NetworkError:
-        print('There was a network error. Please try again.') 
+    client_files = get_client_files(dir_name=user_data['observed_dir'])
+    base_name = os.path.basename(Path(user_data['observed_dir']))
+    for c in client_files:
+        c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
+        c['file_path'] = base_name + '/' + c['file_path'][len(user_data['observed_dir']):]
+
+    status_diff_content = []
+    status_in_both = []
+    client_dict = {cf['file_path']: cf for cf in client_files}
+    server_dict = {cf['file_path']: cf for cf in server_files}
+    status_client_only = list(set(client_dict.keys()) - set(server_dict.keys()))
+    status_server_only = list(set(server_dict.keys()) - set(client_dict.keys()))
+    in_both_keys = list(set(server_dict.keys()) & set(client_dict.keys()))
+    for b_key in in_both_keys:
+        if client_dict[b_key]['b2code'] == server_dict[b_key]['b2code']:
+            status_in_both.append(b_key)
+        else:
+            status_diff_content.append(b_key)
+    status_client_only.sort(key=len)
+    status_server_only.sort(key=len)
+    status_diff_content.sort(key=len)
+    status_in_both.sort(key=len)
+    return status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict
+
 
 
 # The conditions and actions to be taken programmed below
 
 read_details()
+client_dict = {}
+server_dict = {}
+
+auth = coreapi.auth.BasicAuthentication(username=user_data['username'], password=user_data['password'])
+client = coreapi.Client(auth=auth)
 
 if server_cond:
     # validate server url
@@ -203,8 +199,7 @@ elif help_cond:
     print('For getting details of all commands: --help')
     print('For getting available Encryption-Decryption schemes: en-de list')
     print('For updating Encryption-Decryption scheme by directly giving details: en-de update')
-    print(
-        'For updating Encryption-Decryption scheme by giving absolute file path having details: en-de update <abs-file-path>')
+    print('For updating Encryption-Decryption scheme by giving absolute file path having details: en-de update <abs-file-path>')
 
 elif set_url_cond:
     site_url = sys.argv[3]
@@ -270,13 +265,25 @@ elif login_cond:
                 print('There was an error in logging in ( Invalid account details ). Please try again.')
             except coreapi.exceptions.NetworkError:
                 print('There was a network error. Please try again.')
+            except:
+                print('Some error occured, please try again')
 
     else:
         print('The passwords did not match, please try again')
 
 elif status_cond:
     # validate url , username, password, observing directory
-    (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
+    try:
+        print('Connecting to the site : ' + user_data['site_url'] + 'schema/')
+        document = client.get(user_data['site_url'] + 'schema/')
+        (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
+    except coreapi.exceptions.ErrorMessage:
+        print('There was an error in logging in ( Invalid account details ). Please try again.')
+    except coreapi.exceptions.NetworkError:
+        print('There was a network error. Please try again.')
+    except:
+        print('Some error occured, please try again')
+
     print("Files only on Client : ")
     for s in status_client_only:
         print(s)
@@ -295,7 +302,122 @@ elif status_cond:
     print(" ")
 
 elif sync_dir_cond:
-    
+    (status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict) = get_status()
+
+    # Handling only on Client Files
+    if len(status_client_only) > 0:
+        print("Files only on Client : ")
+        for s in status_client_only:
+            print(s)
+        print(" ")
+        choice_1 = input("Do you want to transfer all of them to server ? (y/n)")
+        if choice_1 == 'y':
+            for s in status_client_only:
+                # call upload to server on client_dict[s]
+                print("Uploaded " + s + " to the server.")
+            print("Done.\n")
+        elif choice_1 == 'n':
+            for s in status_client_only:
+                print("Do you want to move " + s + " to server, or delete it from client ? (m/d)")
+                if client_dict[s]['file_type'] == 'inode/directory':
+                    print("If you choose to delete this Directory,")
+                    print(" all files inside it will also be deleted from the client")
+                choice_2 = input()
+                if choice_2 == 'm':
+                    # call upload to server on client_dict[s] check if not directory to get filecontent
+                    # pass userdata[observed_dir]
+                    print("Uploaded " + s + " to the server.")
+                elif choice_2 == 'd':
+                    # delete data from client
+                    print("Deleted " + s + " from client.")
+                else:
+                    print("Invalid Choice.")
+                    sys.exit(2)
+            print("Done.\n")
+        else:
+            print("Invalid choice.")
+            sys.exit(2)
+
+    # Handling only on Server Files
+    if len(status_server_only) > 0:
+        print("Files only on Server : ")
+        for s in status_server_only:
+            print(s)
+        print(" ")
+        choice_1 = input("Do you want to download all of them to client ? (y/n)")
+        if choice_1 == 'y':
+            for s in status_server_only:
+                # call download from server for server_dict[s] also check file type
+                # pass user_data[observed_dir]
+                print("Downloaded " + s + " to the client.")
+            print("Done.\n")
+        elif choice_1 == 'n':
+            for s in status_server_only:
+                print("Do you want to copy " + s + " to the client, or delete it from server ? (c/d)")
+                if server_dict[s]['file_type'] == 'inode/directory':
+                    print("If you choose to delete this Directory,")
+                    print(" all files inside it will also be deleted from the server")
+                choice_2 = input()
+                if choice_2 == 'c':
+                    # call download from server for server_dict[s] also check file type
+                    # pass user_data[observed_dir]
+                    print("Downloaded " + s + " to the client.")
+                elif choice_2 == 'd':
+                    # delete data from server
+                    print("Deleted " + s + " from server.")
+                else:
+                    print("Invalid Choice.")
+                    sys.exit(2)
+            print("Done.\n")
+        else:
+            print("Invalid choice.")
+            sys.exit(2)
+
+    # Handling Files that have been edited
+    if len(status_diff_content) > 0:
+        print("Modified Files : ")
+        for s in status_diff_content:
+            print(s)
+        print(' ')
+        print('Do you want to:\n'
+              '1.Get all files from Server\n'
+              '2.Put all files from Client\n'
+              '3.Select for each file\n')
+        choice_1 = input()
+        if choice_1 == '1':
+            for s in status_diff_content:
+                # delete the file from client
+                # call download from server for server_dict[s]
+                print("Downloaded " + s + " from server.")
+            print("Done.\n")
+        elif choice_1 == '2':
+            for s in status_diff_content:
+                # call delete from server for server_dict[s]
+                # call upload to server for client_dict[s]
+                print("Uploaded " + s + " from client.")
+            print("Done.\n")
+        elif choice_1 == '3':
+            for s in status_diff_content:
+                print("Do you want to keep the server copy or client copy of " + s + " ? (s/c)")
+                if server_dict[s]['file_type'] == 'inode/directory':
+                    print("This is a directory, all data from whichever side is deleted will be lost.")
+                choice_2 = input()
+                if choice_2 == 's':
+                    # delete file from client
+                    # call download from server
+                    print("Downloaded " + s + " from server.")
+                elif choice_2 == 'c':
+                    # delete file from server
+                    # call upload from client
+                    print("Uploaded " + s + " from client.")
+                else:
+                    print("Invalid choice.")
+                    sys.exit(2)
+            print("Done.\n")
+
+        else:
+            print("Invalid choice.")
+            sys.exit(2)
 
 else:
     print("spc: invalid option -- ", end='')
