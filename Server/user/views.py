@@ -38,6 +38,16 @@ class DirFileDetail(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'file_path'
     lookup_url_kwarg = 'file_path'
 
+    def get_queryset(self):
+        queryset = self.queryset
+        return queryset.filter(owners__pk=self.request.user.pk)
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        instance = self.get_queryset().filter(file_path__startswith=obj.file_path)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # class based view to view list of all the files owned by a user (DATA Included)
 # Create new Files and Directories <-Main Use
@@ -55,12 +65,6 @@ class DirFileDataList(generics.ListCreateAPIView):
         queryset = self.queryset
         return queryset.filter(owners__pk=self.request.user.pk)
 
-    def destroy(self, request, *args, **kwargs):
-        obj = self.get_object()
-        instance = self.get_queryset().filter(file_path__startswith=obj.file_path)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 # class based view to view update or delete file instances (DATA Included)
 # File handling and File end point<- Main Use
@@ -71,6 +75,16 @@ class DirFileData(generics.RetrieveUpdateDestroyAPIView):
     # changing lookup fields according to the path
     lookup_field = 'file_path'
     lookup_url_kwarg = 'file_path'
+
+    def get_queryset(self):
+        queryset = self.queryset
+        return queryset.filter(owners__pk=self.request.user.pk)
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        instance = self.get_queryset().filter(file_path__startswith=obj.file_path)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # # Listing all the users
