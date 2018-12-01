@@ -138,6 +138,8 @@ def get_status():
     for c in client_files:
         c['modified_time'] = datetime.strptime(c['modified_time'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%c')
         c['file_path'] = base_name + '/' + c['file_path'][len(user_data['observed_dir']):]
+        if c['file_path'][-1] == '/':
+            c['file_path'] = c['file_path'][:-1]
 
     status_diff_content = []
     status_in_both = []
@@ -192,7 +194,7 @@ def delete_from_server(file_path):
 
 
 def get_par_id(file_path):
-    if file_path[-1] == '/':
+    if os.path.dirname(Path(file_path)) == '':
         return 0
     else:
         file_path = os.path.dirname(Path(file_path))
@@ -202,12 +204,13 @@ def get_par_id(file_path):
         return par_response['pk']
 
 
-def put_in_server_from_client(file_path, owner_list):
+def put_in_server_from_client(file_path, owner_lists):
     file_dict = copy.deepcopy(client_dict[file_path])
     del file_dict['modified_time']
     file_dict['username'] = user_data['username']
-    file_dict['owners'] = owner_list
+    file_dict['owners'] = owner_lists
     file_dict['encryption_scheme'] = user_data['encryption_scheme']
+    file_dict['last_update_by'] = user_data['username']
     if file_dict['file_type'] == 'inode/directory':
         file_dict['file_contents'] = '-'
     else:
@@ -215,6 +218,18 @@ def put_in_server_from_client(file_path, owner_list):
     file_dict['parent_id'] = get_par_id(file_path)
     document = client.get(user_data['site_url'] + 'schema/')
     par_response = client.action(document, ['user', 'datalist', 'create'], params=file_dict)
+
+
+def put_in_client_from_server(file_path):
+    document = client.get(user_data['site_url'] + 'schema/')
+    file_response = client.action(document, ['user', 'data', 'read'], params={'username': user_data['username'],
+                                                                             'file_path': file_path})
+    if file_response['file_type'] == 'inode/directory':
+        if not os.path.exists(total_file_path(file_path)):
+            os.makedirs(total_file_path(file_path))
+    else:
+        b64_str_to_file(file_response['file_contents'], file_path)
+
 
 # The conditions and actions to be taken programmed below
 
@@ -387,6 +402,7 @@ elif sync_dir_cond:
         if choice_1 == 'y':
             for s in status_client_only:
                 # call upload to server on client_dict[s]
+                put_in_server_from_client(s, [user_data['user_id']])
                 print("Uploaded " + s + " to the server.\n")
             print("Done.\n")
         elif choice_1 == 'n':
@@ -397,11 +413,13 @@ elif sync_dir_cond:
                     print(" all files inside it will also be deleted from the client")
                 choice_2 = input()
                 if choice_2 == 'm':
-                    # call upload to server on client_dict[s] check if not directory to get filecontent
-                    # pass userdata[observed_dir]
+                    # call upload to server on client_dict[s]
+                    put_in_server_from_client(s, [user_data['user_id']])
                     print("Uploaded " + s + " to the server.\n")
                 elif choice_2 == 'd':
                     # delete data from client
+                    delete_from_client(s)
+                    status_client_only = [j for j in status_client_only if not j.startswith(s)]
                     print("Deleted " + s + " from client.\n")
                 else:
                     print("Invalid Choice.")
@@ -423,6 +441,7 @@ elif sync_dir_cond:
             for s in status_server_only:
                 # call download from server for server_dict[s] also check file type
                 # pass user_data[observed_dir]
+                put_in_client_from_server(s)
                 print("Downloaded " + s + " to the client.\n")
             print("Done.\n")
         elif choice_1 == 'n':
@@ -435,9 +454,12 @@ elif sync_dir_cond:
                 if choice_2 == 'c':
                     # call download from server for server_dict[s] also check file type
                     # pass user_data[observed_dir]
+                    put_in_client_from_server(s)
                     print("Downloaded " + s + " to the client.\n")
                 elif choice_2 == 'd':
                     # delete data from server
+                    delete_from_server(s)
+                    status_server_only = [j for j in status_server_only if not j.startswith(s)]
                     print("Deleted " + s + " from server.\n")
                 else:
                     print("Invalid Choice.")
@@ -461,13 +483,22 @@ elif sync_dir_cond:
         if choice_1 == '1':
             for s in status_diff_content:
                 # delete the file from client
+                delete_from_client(s)
                 # call download from server for server_dict[s]
+                put_in_client_from_server(s)
                 print("Downloaded " + s + " from server.\n")
             print("Done.\n")
         elif choice_1 == '2':
             for s in status_diff_content:
+                # get owners list of s
+                document = client.get(user_data['site_url'] + 'schema/')
+                get_owner_list = client.action(document, ['user', 'details', 'read'],
+                                                params={'username': user_data['username'], 'file_path':s})
+                owner_list = get_owner_list['owners']
                 # call delete from server for server_dict[s]
+                delete_from_server(s)
                 # call upload to server for client_dict[s]
+                put_in_server_from_client(s, owner_list)
                 print("Uploaded " + s + " from client.\n")
             print("Done.\n")
         elif choice_1 == '3':
@@ -477,12 +508,21 @@ elif sync_dir_cond:
                     print("This is a directory, all data from whichever side is deleted will be lost.")
                 choice_2 = input()
                 if choice_2 == 's':
-                    # delete file from client
-                    # call download from server
+                    # delete the file from client
+                    delete_from_client(s)
+                    # call download from server for server_dict[s]
+                    put_in_client_from_server(s)
                     print("Downloaded " + s + " from server.\n")
                 elif choice_2 == 'c':
-                    # delete file from server
-                    # call upload from client
+                    # get owners list of s
+                    document = client.get(user_data['site_url'] + 'schema/')
+                    get_owner_list = client.action(document, ['user', 'details', 'read'],
+                                                   params={'username': user_data['username'], 'file_path': s})
+                    owner_list = get_owner_list['owners']
+                    # call delete from server for server_dict[s]
+                    delete_from_server(s)
+                    # call upload to server for client_dict[s]
+                    put_in_server_from_client(s, owner_list)
                     print("Uploaded " + s + " from client.\n")
                 else:
                     print("Invalid choice.")
