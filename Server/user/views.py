@@ -128,7 +128,7 @@ def user_home(request, username):
 
 def dfs(node, current_user_pk, tab):
     if not node.file_type == 'inode/directory':
-        return " " * tab + "|\n" + " " * tab + "|___ " + node.name[:-6] + "\n"
+        return " " * tab + "|\n" + " " * tab + "|___ " + node.name + "\n"
     else:
         children = DirFile.objects.filter(owners__pk=current_user_pk).filter(parent_id__exact=node.id)
         children = [c for c in children]
