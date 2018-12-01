@@ -127,7 +127,7 @@ def user_home(request, username):
 
 
 def dfs(node, current_user_pk, tab):
-    if not node.file_type == 'Directory':
+    if not node.file_type == 'inode/directory':
         return " " * tab + "|\n" + " " * tab + "|___ " + node.name[:-6] + "\n"
     else:
         children = DirFile.objects.filter(owners__pk=current_user_pk).filter(parent_id__exact=node.id)
@@ -158,7 +158,7 @@ def dir_view(request, pk, username):
     if not request.user.username == username:
         return render(request, 'invalid.html')
     cur_dir = DirFile.objects.filter(owners__pk=request.user.id).get(id=pk)
-    if cur_dir.file_type == 'Directory':
+    if cur_dir.file_type == 'inode/directory':
         res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parentId__exact=pk)
         dir_name = cur_dir.name
         context = {'files': res_docs, 'dir': dir_name}
