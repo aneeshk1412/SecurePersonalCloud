@@ -11,6 +11,7 @@ import requests
 import getpass
 from datetime import datetime
 from pathlib import Path
+import base64
 
 # Conditions required for arguments
 
@@ -153,6 +154,22 @@ def get_status():
     status_in_both.sort(key=len)
     return status_client_only, status_server_only, status_diff_content, status_in_both, server_dict, client_dict
 
+
+def file_to_b64_str(file_path):
+    tot_file_path = os.path.dirname(os.path.expanduser(Path(user_data['observed_dir']))) + '/' + file_path
+    with open(tot_file_path, 'rb') as infile:
+        out_str = infile.read()
+    out_str = base64.b64encode(out_str)
+    out_str = str(out_str)
+    out_str = out_str[2:-1]
+    return out_str
+
+
+def b64_str_to_file(b64_str, file_path):
+    tot_file_path = os.path.dirname(os.path.expanduser(Path(user_data['observed_dir']))) + '/' + file_path
+    out_bytes = base64.b64decode(b64_str)
+    with open(tot_file_path, 'wb+') as outfile:
+        outfile.write(out_bytes)
 
 
 # The conditions and actions to be taken programmed below
