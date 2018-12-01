@@ -34,10 +34,10 @@ easier to implement now
 
 For SYNC:
 
-	- delete from server
+	- delete from server | also implies deleting all subdirs from server_dict and all lists
 	- put to server from client
 
-	- delete from client
+	- delete from client | also implies deleting all subdirs from client_dict and all lists
 	- put to client from server
 
 In view and Webpage : if no of owners > 1 then put a mark beside it! Shared file/folder
