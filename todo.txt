@@ -1,15 +1,6 @@
 -Put comments for all the API functions and Function overrides
 
 File Sharing:
-Make primary_owner as single pk field
-Rename owner to sharers
-Others remain same
-Sharing criterions:
-View and Update can be done by sharers
-( get put methods : in status correspond to in server only and download it, in client and server modified and upload it back)
-Delete on server only by primary_owner
-( delete method : in status correspond to in server only and delete it )
-M2:
 only owners as before, everyone can delete and update
 easier to implement now
 
@@ -24,7 +15,9 @@ easier to implement now
  in web client : get encoded string -> apply decryption algo (string to string ) -> gives b64 string repr
     -> need this only for embed!!
 
-In view and Webpage : if no of owners > 1 then put a mark beside it! Shared file/folder
+In view and Webpage :
+-if no of owners > 1 then put a mark beside it! Shared file/folder
+-put an embed tag and use file_type also for it
 
 WISHLIST : allowing to add files / folders from webpage
 

@@ -3,9 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="6d6b0fcb-022e-47cc-a685-0fd91fa3bcf0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/Dir1/Dir3/Chidori x Raikiri.mp4" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/Dir1/file1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Client/Dir1/file1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/spc.py" beforeDir="false" afterPath="$PROJECT_DIR$/Client/spc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/user/templates/filepage.html" beforeDir="false" afterPath="$PROJECT_DIR$/Server/user/templates/filepage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/todo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,22 +16,19 @@
   <component name="FileEditorManager">
     <leaf>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Client/spc.py">
+        <entry file="file://$PROJECT_DIR$/Server/user/templates/filepage.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
-              <caret line="216" column="92" lean-forward="true" selection-start-line="216" selection-start-column="92" selection-end-line="216" selection-end-column="92" />
-              <folding>
-                <element signature="e#34#51#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="201">
+              <caret line="22" column="71" selection-start-line="22" selection-start-column="71" selection-end-line="22" selection-end-column="71" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/todo.txt">
+        <entry file="file://$PROJECT_DIR$/Server/user/templates/BLOFileview.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="290">
-              <caret line="65" column="10" selection-start-line="65" selection-start-column="10" selection-end-line="65" selection-end-column="10" />
+            <state relative-caret-position="160">
+              <caret line="40" column="98" selection-start-line="35" selection-start-column="12" selection-end-line="40" selection-end-column="98" />
             </state>
           </provider>
         </entry>
@@ -43,6 +39,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -52,6 +49,7 @@
       <find>key</find>
       <find>parent</find>
       <find>md5</find>
+      <find>parentId</find>
     </findStrings>
     <replaceStrings>
       <replace>cur_dir</replace>
@@ -73,18 +71,19 @@
         <option value="$PROJECT_DIR$/Server/user/templates/basesite.html" />
         <option value="$PROJECT_DIR$/Server/user/templates/userhome.html" />
         <option value="$PROJECT_DIR$/Server/Server/views.py" />
-        <option value="$PROJECT_DIR$/Server/user/templates/filepage.html" />
         <option value="$PROJECT_DIR$/Client/dateTest.py" />
         <option value="$PROJECT_DIR$/Server/user/urls.py" />
         <option value="$PROJECT_DIR$/Server/user/serializers.py" />
         <option value="$PROJECT_DIR$/Server/user/models.py" />
+        <option value="$PROJECT_DIR$/Client/spc.py" />
         <option value="$PROJECT_DIR$/Server/user/views.py" />
         <option value="$PROJECT_DIR$/todo.txt" />
-        <option value="$PROJECT_DIR$/Client/spc.py" />
+        <option value="$PROJECT_DIR$/Client/test.html" />
+        <option value="$PROJECT_DIR$/Server/user/templates/filepage.html" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="716" />
     <option name="y" value="25" />
     <option name="width" value="650" />
@@ -120,6 +119,13 @@
               <item name="Server" type="462c0819:PsiDirectoryNode" />
               <item name="user" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="CS251ProjectContinued" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CS251ProjectContinued" type="462c0819:PsiDirectoryNode" />
+              <item name="Server" type="462c0819:PsiDirectoryNode" />
+              <item name="user" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -127,6 +133,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
@@ -172,7 +179,7 @@
     <frame x="67" y="25" width="1299" height="743" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22585794" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22585794" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -183,7 +190,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32899022" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.3306189" />
+      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.3306189" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -263,20 +270,6 @@
         <state relative-caret-position="-73" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Server/user/templates/BLOFileview.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="487">
-          <caret line="41" column="9" lean-forward="true" selection-start-line="18" selection-start-column="8" selection-end-line="41" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Server/user/templates/filepage.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="512">
-          <caret line="32" column="52" lean-forward="true" selection-start-line="32" selection-start-column="52" selection-end-line="32" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Server/Server/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="464">
@@ -327,23 +320,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/todo.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="65" column="10" selection-start-line="65" selection-start-column="10" selection-end-line="65" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Server/user/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-73">
-          <caret line="160" column="44" selection-start-line="160" selection-start-column="44" selection-end-line="160" selection-end-column="44" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Server/user/serializers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="208">
@@ -354,13 +330,65 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Client/spc.py">
+    <entry file="file://$PROJECT_DIR$/Server/user/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="215">
-          <caret line="216" column="92" lean-forward="true" selection-start-line="216" selection-start-column="92" selection-end-line="216" selection-end-column="92" />
+          <caret line="139" lean-forward="true" selection-start-line="139" selection-end-line="139" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Client/spc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="937">
+          <caret line="509" column="29" selection-start-line="509" selection-start-column="29" selection-end-line="509" selection-end-column="29" />
           <folding>
             <element signature="e#34#51#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/todo.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Client/out.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="16" lean-forward="true" selection-end-column="30760" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Client/test.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="10" column="81" selection-start-line="10" selection-start-column="81" selection-end-line="10" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Client/Dir1/Dir3/out.txt">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state relative-caret-position="48">
+          <caret column="401" lean-forward="true" selection-start-column="401" selection-end-column="401" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Server/user/templates/BLOFileview.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="40" column="98" selection-start-line="35" selection-start-column="12" selection-end-line="40" selection-end-column="98" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Server/user/templates/filepage.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="22" column="71" selection-start-line="22" selection-start-column="71" selection-end-line="22" selection-end-column="71" />
         </state>
       </provider>
     </entry>
