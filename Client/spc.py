@@ -43,26 +43,26 @@ schemes = ['AES', 'BLOFish', 'RSA', 'RC4']
 
 
 def make_details_dir():
-    if not os.path.exists(os.path.expanduser(os.path.join("~", "spc_details"))):
-        os.makedirs(os.path.expanduser(os.path.join("~", "spc_details")))
+    if not os.path.exists(os.path.expanduser(os.path.join("~", ".spc_details"))):
+        os.makedirs(os.path.expanduser(os.path.join("~", ".spc_details")))
 
 
 def write_details():
-    if not os.path.exists(os.path.expanduser(os.path.join("~", "spc_details"))):
+    if not os.path.exists(os.path.expanduser(os.path.join("~", ".spc_details"))):
         # need to create auth directory
         make_details_dir()
 
-    with open(os.path.expanduser(os.path.join("~", "spc_details/config.txt")), 'w+') as file:
+    with open(os.path.expanduser(os.path.join("~", ".spc_details/config.txt")), 'w+') as file:
         for k, v in user_data.items():
             file.write("%s|%s\n" % (k, v))
 
 
 def read_details():
-    if not os.path.exists(os.path.expanduser(os.path.join("~", "spc_details/config.txt"))):
+    if not os.path.exists(os.path.expanduser(os.path.join("~", ".spc_details/config.txt"))):
         make_details_dir()
         write_details()
     else:
-        with open(os.path.expanduser(os.path.join("~", "spc_details/config.txt")), 'r') as file:
+        with open(os.path.expanduser(os.path.join("~", ".spc_details/config.txt")), 'r') as file:
             for row in file:
                 data_list = re.split("[|\n]", row)
                 user_data[data_list[0]] = data_list[1]
@@ -223,7 +223,7 @@ def put_in_server_from_client(file_path, owner_lists):
 def put_in_client_from_server(file_path):
     document = client.get(user_data['site_url'] + 'schema/')
     file_response = client.action(document, ['user', 'data', 'read'], params={'username': user_data['username'],
-                                                                             'file_path': file_path})
+                                                                              'file_path': file_path})
     if file_response['file_type'] == 'inode/directory':
         if not os.path.exists(total_file_path(file_path)):
             os.makedirs(total_file_path(file_path))
@@ -242,7 +242,7 @@ client = coreapi.Client(auth=auth)
 
 if server_cond:
     # validate server url
-    if os.path.exists(os.path.expanduser(os.path.join("~", "spc_details"))):
+    if os.path.exists(os.path.expanduser(os.path.join("~", ".spc_details"))):
         read_details()
         # ip and port
         if validated('site_url'):
@@ -493,7 +493,7 @@ elif sync_dir_cond:
                 # get owners list of s
                 document = client.get(user_data['site_url'] + 'schema/')
                 get_owner_list = client.action(document, ['user', 'details', 'read'],
-                                                params={'username': user_data['username'], 'file_path':s})
+                                               params={'username': user_data['username'], 'file_path': s})
                 owner_list = get_owner_list['owners']
                 # call delete from server for server_dict[s]
                 delete_from_server(s)
