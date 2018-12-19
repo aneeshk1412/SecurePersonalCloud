@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 
@@ -19,6 +20,8 @@ class DirFile(models.Model):
     # related name is name with which the other model calls this model
     owners = models.ManyToManyField('auth.User', related_name='dirfiles')
     last_update_by = models.CharField(max_length=5000)
+    locked = models.BooleanField(default=False)
+    lock_time = models.DateTimeField(auto_now_add=True, editable=True)
 
     # File Contents , to be changed for block level encryption
     # make sure data stored here is always in Base64 encoding
@@ -31,3 +34,4 @@ class DirFile(models.Model):
         encryption_scheme = str(self.encryption_scheme)
         res = "Name : " + name + " Type : " + file_type + " Scheme : " + encryption_scheme
         return res
+

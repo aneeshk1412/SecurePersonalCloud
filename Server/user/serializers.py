@@ -36,7 +36,7 @@ class DirFileDataSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     dirfiles = serializers.StringRelatedField(many=True)
-
+    
     class Meta:
         model = User
         fields = ('id', 'username', 'dirfiles', )

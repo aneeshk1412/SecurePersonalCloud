@@ -391,6 +391,8 @@ elif sync_dir_cond:
     except coreapi.exceptions.NetworkError:
         print('There was a network error. Please try again.')
 
+
+
     # Handling only on Client Files
     if len(status_client_only) > 0:
         print("Files only on Client : ")
@@ -534,10 +536,10 @@ elif sync_dir_cond:
                     print("Invalid choice.")
                     sys.exit(2)
             print("Done.\n")
-
         else:
             print("Invalid choice.")
             sys.exit(2)
+    print("All files are in Sync now!\n")
 
 else:
     print("spc: invalid option -- ", end='')

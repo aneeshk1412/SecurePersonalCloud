@@ -120,7 +120,7 @@ class DirStatus(generics.ListAPIView):
 @login_required(login_url="/accounts/login/")
 def user_home(request, username):
     if not request.user.username == username:
-        return render(request, 'invalid.html')
+        return render(request, 'invalid.html', status=status.HTTP_403_FORBIDDEN)
     res_docs = DirFile.objects.filter(owners__pk=request.user.pk).filter(parent_id__exact=0)
     context = {'files': res_docs}
     return render(request, 'userhome.html', context)
@@ -141,7 +141,7 @@ def dfs(node, current_user_pk, tab):
 @login_required(login_url="/accounts/login/")
 def tree_view(request, username):
     if not request.user.username == username:
-        return render(request, 'invalid.html')
+        return render(request, 'invalid.html', status=status.HTTP_403_FORBIDDEN)
     res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parent_id__exact=0)
     res_docs = [r for r in res_docs]
     result = ""
@@ -156,7 +156,7 @@ def tree_view(request, username):
 @login_required(login_url="/accounts/login/")
 def dir_view(request, pk, username):
     if not request.user.username == username:
-        return render(request, 'invalid.html')
+        return render(request, 'invalid.html', status=status.HTTP_403_FORBIDDEN)
     cur_dir = DirFile.objects.filter(owners__pk=request.user.id).get(id=pk)
     if cur_dir.file_type == 'inode/directory':
         res_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(parent_id__exact=pk)
@@ -167,7 +167,7 @@ def dir_view(request, pk, username):
         file_name = cur_dir.name
         file_data = cur_dir.file_contents
         file_type = cur_dir.file_type
-        context = { 'file_name': file_name, 'file_data': file_data, 'file_type': file_type}
+        context = {'file_name': file_name, 'file_data': file_data, 'file_type': file_type}
         return render(request, 'filepage.html', context)
     # else:
         # if cur_dir.encryption_scheme == 'aes':
@@ -179,3 +179,5 @@ def dir_view(request, pk, username):
         #     filetype = cur_dir.file_type
         #     context = {'file_name': filename, 'file_data': filedata, 'file_type': filetype}
         #     return render(request, 'AESFileview.html', context)
+
+
