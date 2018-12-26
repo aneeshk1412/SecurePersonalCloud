@@ -8,6 +8,9 @@ from .permissions import IsOwnerOrReadOnly
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils import timezone
+from django.http import HttpResponse
+from datetime import timedelta
 # Create your views here.
 
 
@@ -180,4 +183,36 @@ def dir_view(request, pk, username):
         #     context = {'file_name': filename, 'file_data': filedata, 'file_type': filetype}
         #     return render(request, 'AESFileview.html', context)
 
+
+@login_required(login_url="/accounts/login/")
+def is_locked(request, username):
+    locked_docs = DirFile.objects.filter(owners__pk=request.user.id).filter(locked__exact=True)
+    locked_docs = [r for r in locked_docs]
+    if len(locked_docs) == 0:
+        return HttpResponse("<h2>OK", status=status.HTTP_200_OK)
+    else:
+        time_max = locked_docs[0].lock_time
+        for r in locked_docs:
+            if time_max < r.lock_time:
+                time_max = r.lock_time
+        print(time_max)
+        print(timezone.now())
+        print(time_max - timezone.now())
+        if timezone.now() - time_max > timedelta(seconds=20):
+            return HttpResponse("<h2>Time", status=status.HTTP_201_CREATED)
+        else:
+            return HttpResponse("<h2>Locked", status=status.HTTP_423_LOCKED)
+
+
+@login_required(login_url="/accounts/login/")
+def lock_it(request, username):
+    DirFile.objects.filter(owners__pk=request.user.id).update(locked=True)
+    DirFile.objects.filter(owners__pk=request.user.id).update(lock_time=timezone.now())
+    return HttpResponse('<h2>Locked', status=status.HTTP_200_OK)
+
+
+@login_required(login_url="/accounts/login/")
+def unlock_it(request, username):
+    DirFile.objects.filter(owners__pk=request.user.id).update(locked=False)
+    return HttpResponse('<h2>Unlocked', status=status.HTTP_200_OK)
 

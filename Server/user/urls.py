@@ -32,6 +32,9 @@ urlpatterns = [
     path('', views.user_home, name='user_home'),
     path('tree/', views.tree_view, name='tree_view'),
     path('<int:pk>/', views.dir_view, name='dir_view'),
+    path('islocked/', views.is_locked, name='is_locked'),
+    path('lockit/', views.lock_it, name='lock_it'),
+    path('unlockit/', views.unlock_it, name='unlock_it'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
