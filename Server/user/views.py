@@ -170,6 +170,8 @@ def dir_view(request, pk, username):
         file_name = cur_dir.name
         file_data = cur_dir.file_contents
         file_type = cur_dir.file_type
+        if file_type[:4] == 'text':
+            file_type = 'text/plain'
         context = {'file_name': file_name, 'file_data': file_data, 'file_type': file_type}
         return render(request, 'filepage.html', context)
     # else:
