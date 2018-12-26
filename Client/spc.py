@@ -73,7 +73,7 @@ def read_details():
         payload['password'] = user_data['password']
         try:
             req1 = web_sess.get(user_data['site_url']+'accounts/login/')
-            payload['csrfmiddlewaretoken'] = req1.cookies['csrf_token']
+            payload['csrfmiddlewaretoken'] = req1.cookies['csrftoken']
             req1 = web_sess.post(user_data['site_url']+'accounts/login/', data=payload)
         except:
             print('Exception occured')

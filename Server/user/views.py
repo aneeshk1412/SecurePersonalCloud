@@ -198,7 +198,7 @@ def is_locked(request, username):
         print(time_max)
         print(timezone.now())
         print(time_max - timezone.now())
-        if timezone.now() - time_max > timedelta(seconds=20):
+        if timezone.now() - time_max > timedelta(seconds=30):
             return HttpResponse("<h2>Time", status=status.HTTP_201_CREATED)
         else:
             return HttpResponse("<h2>Locked", status=status.HTTP_423_LOCKED)
