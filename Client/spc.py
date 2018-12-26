@@ -40,7 +40,10 @@ user_data = {'username': '-',
              'observed_dir_id': '-',
              'site_url': '-', }
 schemes = ['AES', 'BLOFish', 'RSA', 'RC4']
-
+web_sess = requests.Session()
+payload = {'username': '-',
+           'password': '-',
+           'csrfmiddlewaretoken': '-'}
 
 def make_details_dir():
     if not os.path.exists(os.path.expanduser(os.path.join("~", ".spc_details"))):
@@ -66,6 +69,14 @@ def read_details():
             for row in file:
                 data_list = re.split("[|\n]", row)
                 user_data[data_list[0]] = data_list[1]
+        payload['username'] = user_data['username']
+        payload['password'] = user_data['password']
+        try:
+            req1 = web_sess.get(user_data['site_url']+'accounts/login/')
+            payload['csrfmiddlewaretoken'] = req1.cookies['csrf_token']
+            req1 = web_sess.post(user_data['site_url']+'accounts/login/', data=payload)
+        except:
+            print('Exception occured')
 
 
 def validated(*args):
@@ -74,6 +85,22 @@ def validated(*args):
             return False
         else:
             return True
+
+
+def lock_files():
+    req2 = web_sess.get(user_data['site_url']+'user/'+user_data['username']+'/lockit/')
+
+
+def unlock_files():
+    req2 = web_sess.get(user_data['site_url']+'user/'+user_data['username']+'/unlockit/')
+
+
+def check_is_locked():
+    req2 = web_sess.get(user_data['site_url']+'user/'+user_data['username']+'/islocked/')
+    if req2.ok:
+        return False
+    else:
+        return True
 
 
 def command_run(bash_command):
@@ -391,137 +418,109 @@ elif sync_dir_cond:
     except coreapi.exceptions.NetworkError:
         print('There was a network error. Please try again.')
 
-
-
-    # Handling only on Client Files
-    if len(status_client_only) > 0:
-        print("Files only on Client : ")
-        for s in status_client_only:
-            print(s)
-        print(" ")
-        choice_1 = input("Do you want to transfer all of them to server ? (y/n)")
-        print("\n")
-        if choice_1 == 'y':
+    if check_is_locked():
+        print("The server files have currently been locked... please try again after some time")
+    else:
+        lock_files()
+        # Handling only on Client Files
+        if len(status_client_only) > 0:
+            print("Files only on Client : ")
             for s in status_client_only:
-                # call upload to server on client_dict[s]
-                put_in_server_from_client(s, [user_data['user_id']])
-                print("Uploaded " + s + " to the server.\n")
-            print("Done.\n")
-        elif choice_1 == 'n':
-            for s in status_client_only:
-                print("Do you want to move " + s + " to server, or delete it from client ? (m/d)")
-                if client_dict[s]['file_type'] == 'inode/directory':
-                    print("If you choose to delete this Directory,")
-                    print(" all files inside it will also be deleted from the client")
-                choice_2 = input()
-                if choice_2 == 'm':
+                print(s)
+            print(" ")
+            choice_1 = input("Do you want to transfer all of them to server ? (y/n)")
+            print("\n")
+            if choice_1 == 'y':
+                for s in status_client_only:
                     # call upload to server on client_dict[s]
                     put_in_server_from_client(s, [user_data['user_id']])
                     print("Uploaded " + s + " to the server.\n")
-                elif choice_2 == 'd':
-                    # delete data from client
-                    delete_from_client(s)
-                    status_client_only = [j for j in status_client_only if not j.startswith(s)]
-                    print("Deleted " + s + " from client.\n")
-                else:
-                    print("Invalid Choice.")
-                    sys.exit(2)
-            print("Done.\n")
-        else:
-            print("Invalid choice.")
-            sys.exit(2)
+                print("Done.\n")
+            elif choice_1 == 'n':
+                for s in status_client_only:
+                    print("Do you want to move " + s + " to server, or delete it from client ? (m/d)")
+                    if client_dict[s]['file_type'] == 'inode/directory':
+                        print("If you choose to delete this Directory,")
+                        print(" all files inside it will also be deleted from the client")
+                    choice_2 = input()
+                    if choice_2 == 'm':
+                        # call upload to server on client_dict[s]
+                        put_in_server_from_client(s, [user_data['user_id']])
+                        print("Uploaded " + s + " to the server.\n")
+                    elif choice_2 == 'd':
+                        # delete data from client
+                        delete_from_client(s)
+                        status_client_only = [j for j in status_client_only if not j.startswith(s)]
+                        print("Deleted " + s + " from client.\n")
+                    else:
+                        print("Invalid Choice.")
+                        sys.exit(2)
+                print("Done.\n")
+            else:
+                print("Invalid choice.")
+                sys.exit(2)
 
-    # Handling only on Server Files
-    if len(status_server_only) > 0:
-        print("Files only on Server : ")
-        for s in status_server_only:
-            print(s)
-        print(" ")
-        choice_1 = input("Do you want to download all of them to client ? (y/n)")
-        print("\n")
-        if choice_1 == 'y':
+        # Handling only on Server Files
+        if len(status_server_only) > 0:
+            print("Files only on Server : ")
             for s in status_server_only:
-                # call download from server for server_dict[s] also check file type
-                # pass user_data[observed_dir]
-                put_in_client_from_server(s)
-                print("Downloaded " + s + " to the client.\n")
-            print("Done.\n")
-        elif choice_1 == 'n':
-            for s in status_server_only:
-                print("Do you want to copy " + s + " to the client, or delete it from server ? (c/d)")
-                if server_dict[s]['file_type'] == 'inode/directory':
-                    print("If you choose to delete this Directory,")
-                    print(" all files inside it will also be deleted from the server")
-                choice_2 = input()
-                if choice_2 == 'c':
+                print(s)
+            print(" ")
+            choice_1 = input("Do you want to download all of them to client ? (y/n)")
+            print("\n")
+            if choice_1 == 'y':
+                for s in status_server_only:
                     # call download from server for server_dict[s] also check file type
                     # pass user_data[observed_dir]
                     put_in_client_from_server(s)
                     print("Downloaded " + s + " to the client.\n")
-                elif choice_2 == 'd':
-                    # delete data from server
-                    delete_from_server(s)
-                    status_server_only = [j for j in status_server_only if not j.startswith(s)]
-                    print("Deleted " + s + " from server.\n")
-                else:
-                    print("Invalid Choice.")
-                    sys.exit(2)
-            print("Done.\n")
-        else:
-            print("Invalid choice.")
-            sys.exit(2)
+                print("Done.\n")
+            elif choice_1 == 'n':
+                for s in status_server_only:
+                    print("Do you want to copy " + s + " to the client, or delete it from server ? (c/d)")
+                    if server_dict[s]['file_type'] == 'inode/directory':
+                        print("If you choose to delete this Directory,")
+                        print(" all files inside it will also be deleted from the server")
+                    choice_2 = input()
+                    if choice_2 == 'c':
+                        # call download from server for server_dict[s] also check file type
+                        # pass user_data[observed_dir]
+                        put_in_client_from_server(s)
+                        print("Downloaded " + s + " to the client.\n")
+                    elif choice_2 == 'd':
+                        # delete data from server
+                        delete_from_server(s)
+                        status_server_only = [j for j in status_server_only if not j.startswith(s)]
+                        print("Deleted " + s + " from server.\n")
+                    else:
+                        print("Invalid Choice.")
+                        sys.exit(2)
+                print("Done.\n")
+            else:
+                print("Invalid choice.")
+                sys.exit(2)
 
-    # Handling Files that have been edited
-    if len(status_diff_content) > 0:
-        print("Modified Files : ")
-        for s in status_diff_content:
-            print(s)
-        print(' ')
-        print('Do you want to:\n'
-              '1.Get all files from Server\n'
-              '2.Put all files from Client\n'
-              '3.Select for each file\n')
-        choice_1 = input()
-        if choice_1 == '1':
+        # Handling Files that have been edited
+        if len(status_diff_content) > 0:
+            print("Modified Files : ")
             for s in status_diff_content:
-                # delete the file from client
-                delete_from_client(s)
-                # call download from server for server_dict[s]
-                put_in_client_from_server(s)
-                print("Downloaded " + s + " from server.\n")
-            print("Done.\n")
-        elif choice_1 == '2':
-            for s in status_diff_content:
-                # get owners list of s
-                document = client.get(user_data['site_url'] + 'schema/')
-                get_owner_list = client.action(document, ['user', 'details', 'read'],
-                                               params={'username': user_data['username'], 'file_path': s})
-                owner_list = get_owner_list['owners']
-                # call delete from server for server_dict[s]
-                delete_from_server(s)
-                # call upload to server for client_dict[s]
-                put_in_server_from_client(s, owner_list)
-                print("Uploaded " + s + " from client.\n")
-            print("Done.\n")
-        elif choice_1 == '3':
-            for s in status_diff_content:
-                print("Do you want to keep the server copy or client copy of " + s + " ? (s/c)")
-                print("Client Last Modification Time : ")
-                print(client_dict[s]['modified_time'])
-                print("\n")
-                print("Server Last Modification Time : ")
-                print(server_dict[s]['modified_time'])
-                print("\n")
-                if server_dict[s]['file_type'] == 'inode/directory':
-                    print("This is a directory, all data from whichever side is deleted will be lost.")
-                choice_2 = input()
-                if choice_2 == 's':
+                print(s)
+            print(' ')
+            print('Do you want to:\n'
+                  '1.Get all files from Server\n'
+                  '2.Put all files from Client\n'
+                  '3.Select for each file\n')
+            choice_1 = input()
+            if choice_1 == '1':
+                for s in status_diff_content:
                     # delete the file from client
                     delete_from_client(s)
                     # call download from server for server_dict[s]
                     put_in_client_from_server(s)
                     print("Downloaded " + s + " from server.\n")
-                elif choice_2 == 'c':
+                print("Done.\n")
+            elif choice_1 == '2':
+                for s in status_diff_content:
                     # get owners list of s
                     document = client.get(user_data['site_url'] + 'schema/')
                     get_owner_list = client.action(document, ['user', 'details', 'read'],
@@ -532,14 +531,45 @@ elif sync_dir_cond:
                     # call upload to server for client_dict[s]
                     put_in_server_from_client(s, owner_list)
                     print("Uploaded " + s + " from client.\n")
-                else:
-                    print("Invalid choice.")
-                    sys.exit(2)
-            print("Done.\n")
-        else:
-            print("Invalid choice.")
-            sys.exit(2)
-    print("All files are in Sync now!\n")
+                print("Done.\n")
+            elif choice_1 == '3':
+                for s in status_diff_content:
+                    print("Do you want to keep the server copy or client copy of " + s + " ? (s/c)")
+                    print("Client Last Modification Time : ")
+                    print(client_dict[s]['modified_time'])
+                    print("\n")
+                    print("Server Last Modification Time : ")
+                    print(server_dict[s]['modified_time'])
+                    print("\n")
+                    if server_dict[s]['file_type'] == 'inode/directory':
+                        print("This is a directory, all data from whichever side is deleted will be lost.")
+                    choice_2 = input()
+                    if choice_2 == 's':
+                        # delete the file from client
+                        delete_from_client(s)
+                        # call download from server for server_dict[s]
+                        put_in_client_from_server(s)
+                        print("Downloaded " + s + " from server.\n")
+                    elif choice_2 == 'c':
+                        # get owners list of s
+                        document = client.get(user_data['site_url'] + 'schema/')
+                        get_owner_list = client.action(document, ['user', 'details', 'read'],
+                                                       params={'username': user_data['username'], 'file_path': s})
+                        owner_list = get_owner_list['owners']
+                        # call delete from server for server_dict[s]
+                        delete_from_server(s)
+                        # call upload to server for client_dict[s]
+                        put_in_server_from_client(s, owner_list)
+                        print("Uploaded " + s + " from client.\n")
+                    else:
+                        print("Invalid choice.")
+                        sys.exit(2)
+                print("Done.\n")
+            else:
+                print("Invalid choice.")
+                sys.exit(2)
+        print("All files are in Sync now!\n")
+        unlock_files()
 
 else:
     print("spc: invalid option -- ", end='')
